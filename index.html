@@ -238,8 +238,9 @@ select.fi{cursor:pointer;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 .fade{animation:fadeUp .35s ease both;}
 @media(max-width:860px){
-  .sidebar{display:none;}
-  .main{margin-left:0!important;padding:12px;}
+  .sidebar{display:none!important;width:0!important;}
+  .layout{display:block!important;}
+  .main{margin-left:0!important;padding:12px;width:100%!important;max-width:100%!important;}
   .msg-layout{grid-template-columns:1fr;}
   .msg-list{display:none;}
   .nav-links{display:none!important;}
@@ -788,7 +789,9 @@ function enterApp() {
   document.getElementById('navGuest').style.display = 'none';
   document.getElementById('navUser').style.display = 'flex';
   document.getElementById('navLinks').style.display = 'flex';
-  document.getElementById('sidebar').style.display = 'flex';
+  if (window.innerWidth > 860) {
+    document.getElementById('sidebar').style.display = 'flex';
+  }
   document.getElementById('mainWrap').style.marginLeft = '';
 
   const initials = (currentUser.first_name[0] + currentUser.last_name[0]).toUpperCase();
