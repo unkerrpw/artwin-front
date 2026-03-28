@@ -1,5 +1,5 @@
 // api.js — клиент для работы с бэкендом ArtWin
-const API = '/api';
+const API = 'https://api.artwin.live/api';
 
 // ===== TOKEN MANAGEMENT =====
 const Token = {
