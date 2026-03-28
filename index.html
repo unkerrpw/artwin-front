@@ -16,6 +16,12 @@ h1,h2,h3,h4,h5{font-family:'Syne',sans-serif;}
 .nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:60px;background:rgba(10,10,15,.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
 .logo{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;cursor:pointer;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
 .nav-links{display:flex;gap:4px;}
+.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:99;background:var(--surface);border-top:1px solid var(--border);padding:8px 0 12px;}
+.mobile-nav-items{display:flex;justify-content:space-around;}
+.mnav-item{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 12px;border-radius:10px;color:var(--muted);font-size:10px;font-weight:500;}
+.mnav-item.active{color:var(--accent);}
+.mnav-item .mico{font-size:20px;}
+@media(max-width:860px){.mobile-nav{display:block;}.main{padding-bottom:80px!important;}}
 .nav-link{padding:7px 14px;border-radius:8px;cursor:pointer;color:var(--muted);font-size:13px;font-weight:500;transition:.2s;}
 .nav-link:hover,.nav-link.active{color:var(--text);background:var(--surface2);}
 .nav-right{display:flex;gap:10px;align-items:center;}
@@ -79,6 +85,17 @@ h1,h2,h3,h4,h5{font-family:'Syne',sans-serif;}
 .cat-music{background:rgba(245,92,252,.1);color:#e879f9;}
 .cat-photo{background:rgba(252,225,92,.1);color:#facc15;}
 .cat-3d{background:rgba(92,152,252,.1);color:#60a5fa;}
+.cat-ai{background:rgba(16,185,129,.1);color:#34d399;}
+.cat-smm{background:rgba(236,72,153,.1);color:#f472b6;}
+.cat-translation{background:rgba(245,158,11,.1);color:#fbbf24;}
+.cat-education{background:rgba(99,102,241,.1);color:#818cf8;}
+.cat-business{background:rgba(107,114,128,.1);color:#9ca3af;}
+.cat-legal{background:rgba(239,68,68,.1);color:#f87171;}
+.cat-finance{background:rgba(52,211,153,.1);color:#34d399;}
+.cat-architecture{background:rgba(251,191,36,.1);color:#fbbf24;}
+.cat-gamedev{background:rgba(167,139,250,.1);color:#a78bfa;}
+.cat-data{background:rgba(56,189,248,.1);color:#38bdf8;}
+.cat-other{background:rgba(156,163,175,.1);color:#9ca3af;}
 .jcard h3{font-size:14px;font-weight:600;margin-bottom:7px;line-height:1.4;}
 .jcard .desc{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:12px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
 .jcard .budget{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--accent3);margin:10px 0;}
@@ -220,7 +237,30 @@ select.fi{cursor:pointer;}
 .ritem .rtxt{font-size:13px;color:var(--muted);line-height:1.6;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 .fade{animation:fadeUp .35s ease both;}
-@media(max-width:860px){.sidebar{display:none;}.main{margin-left:0;padding:14px;}.msg-layout{grid-template-columns:1fr;}.msg-list{display:none;}}
+@media(max-width:860px){
+  .sidebar{display:none;}
+  .main{margin-left:0!important;padding:12px;}
+  .msg-layout{grid-template-columns:1fr;}
+  .msg-list{display:none;}
+  .nav-links{display:none!important;}
+  .stats-row{grid-template-columns:1fr 1fr;}
+  .grid-3{grid-template-columns:1fr;}
+  .grid-4{grid-template-columns:1fr 1fr;}
+  .grid-2{grid-template-columns:1fr;}
+  h2{font-size:18px!important;}
+  .ph{flex-direction:column;align-items:flex-start;}
+  .modal{padding:20px;border-radius:14px;}
+  .wcrd .wamt{font-size:28px;}
+  #page-profile .tabs{overflow-x:auto;flex-wrap:nowrap;}
+}
+@media(max-width:480px){
+  .grid-4{grid-template-columns:1fr;}
+  .hero h1{font-size:32px!important;}
+  .hero p{font-size:15px;}
+  .hero-btns .btn{padding:11px 20px;font-size:14px;}
+  .hero-stats{gap:20px;}
+  .hero-stat .num{font-size:24px;}
+}
 </style>
 </head>
 <body>
@@ -286,7 +326,7 @@ select.fi{cursor:pointer;}
         <button class="btn btn-primary" onclick="openM('regM')">Начать бесплатно →</button>
         <button class="btn btn-ghost" onclick="openM('loginM')">Уже есть аккаунт</button>
       </div>
-      <div class="hero-cats">
+      <div class="hero-cats" style="overflow-x:auto;flex-wrap:wrap;justify-content:center">
         <div class="hero-cat" onclick="openM('regM')">🎨 Дизайн</div>
         <div class="hero-cat" onclick="openM('regM')">💻 Разработка</div>
         <div class="hero-cat" onclick="openM('regM')">✍️ Текст</div>
@@ -295,12 +335,16 @@ select.fi{cursor:pointer;}
         <div class="hero-cat" onclick="openM('regM')">🎵 Музыка</div>
         <div class="hero-cat" onclick="openM('regM')">📸 Фото</div>
         <div class="hero-cat" onclick="openM('regM')">🎮 3D</div>
+        <div class="hero-cat" onclick="openM('regM')">🤖 ИИ</div>
+        <div class="hero-cat" onclick="openM('regM')">📱 SMM</div>
+        <div class="hero-cat" onclick="openM('regM')">🌍 Переводы</div>
+        <div class="hero-cat" onclick="openM('regM')">🕹️ Геймдев</div>
       </div>
       <div class="hero-stats">
-        <div class="hero-stat"><div class="num" id="statUsers">0</div><div class="lbl">Фрилансеров</div></div>
-        <div class="hero-stat"><div class="num" id="statJobs">0</div><div class="lbl">Заказов</div></div>
-        <div class="hero-stat"><div class="num">98%</div><div class="lbl">Довольных клиентов</div></div>
-        <div class="hero-stat"><div class="num">200+</div><div class="lbl">Категорий</div></div>
+        <div class="hero-stat"><div class="num" id="statUsers">–</div><div class="lbl">Фрилансеров</div></div>
+        <div class="hero-stat"><div class="num" id="statJobs">–</div><div class="lbl">Заказов</div></div>
+        <div class="hero-stat"><div class="num">0₽</div><div class="lbl">Комиссия сейчас</div></div>
+        <div class="hero-stat"><div class="num">20+</div><div class="lbl">Категорий</div></div>
       </div>
     </div>
   </div>
@@ -331,7 +375,7 @@ select.fi{cursor:pointer;}
   <div class="ph fade"><div><h2>Биржа заказов</h2><div class="sub" id="jobsCount">Загрузка...</div></div>
     <button class="btn btn-primary btn-sm" onclick="openM('newJobM')">+ Разместить заказ</button></div>
   <div class="sbar fade"><span class="ico">🔍</span><input type="text" placeholder="Поиск заказов..." id="jobSearch" oninput="searchJobs(this.value)"></div>
-  <div class="filters fade" id="jobFilters">
+  <div class="filters fade" id="jobFilters" style="overflow-x:auto;flex-wrap:nowrap;padding-bottom:4px">
     <button class="fbtn active" onclick="filterCat('',this)">Все</button>
     <button class="fbtn" onclick="filterCat('design',this)">🎨 Дизайн</button>
     <button class="fbtn" onclick="filterCat('dev',this)">💻 Разработка</button>
@@ -341,6 +385,17 @@ select.fi{cursor:pointer;}
     <button class="fbtn" onclick="filterCat('music',this)">🎵 Музыка</button>
     <button class="fbtn" onclick="filterCat('photo',this)">📸 Фото</button>
     <button class="fbtn" onclick="filterCat('3d',this)">🎮 3D</button>
+    <button class="fbtn" onclick="filterCat('ai',this)">🤖 ИИ</button>
+    <button class="fbtn" onclick="filterCat('business',this)">💼 Бизнес</button>
+    <button class="fbtn" onclick="filterCat('education',this)">📚 Обучение</button>
+    <button class="fbtn" onclick="filterCat('translation',this)">🌍 Переводы</button>
+    <button class="fbtn" onclick="filterCat('legal',this)">⚖️ Юридические</button>
+    <button class="fbtn" onclick="filterCat('architecture',this)">🏗️ Архитектура</button>
+    <button class="fbtn" onclick="filterCat('finance',this)">💹 Финансы</button>
+    <button class="fbtn" onclick="filterCat('gamedev',this)">🕹️ Геймдев</button>
+    <button class="fbtn" onclick="filterCat('smm',this)">📱 SMM</button>
+    <button class="fbtn" onclick="filterCat('data',this)">📊 Аналитика</button>
+    <button class="fbtn" onclick="filterCat('other',this)">🔧 Другое</button>
   </div>
   <div class="grid-3" id="jobsGrid"><div class="loading"><div class="spin"></div></div></div>
   <div id="jobsLoadMore" style="text-align:center;margin-top:20px;display:none">
@@ -531,10 +586,25 @@ select.fi{cursor:pointer;}
     <div class="fg"><label class="fl">Заголовок (минимум 10 символов)</label><input class="fi" id="nj-title" placeholder="Например: Разработка лендинга на React"></div>
     <div class="fg"><label class="fl">Категория</label>
       <select class="fi" id="nj-cat">
-        <option value="design">🎨 Дизайн</option><option value="dev">💻 Разработка</option>
-        <option value="writing">✍️ Текст и контент</option><option value="video">🎬 Видео</option>
-        <option value="marketing">📈 Маркетинг</option><option value="music">🎵 Музыка</option>
-        <option value="photo">📸 Фото</option><option value="3d">🎮 3D</option>
+        <option value="design">🎨 Дизайн</option>
+        <option value="dev">💻 Разработка</option>
+        <option value="writing">✍️ Текст и контент</option>
+        <option value="video">🎬 Видео и анимация</option>
+        <option value="marketing">📈 Маркетинг</option>
+        <option value="music">🎵 Музыка и аудио</option>
+        <option value="photo">📸 Фотография</option>
+        <option value="3d">🎮 3D и анимация</option>
+        <option value="ai">🤖 ИИ и автоматизация</option>
+        <option value="smm">📱 SMM и соцсети</option>
+        <option value="translation">🌍 Переводы</option>
+        <option value="education">📚 Обучение</option>
+        <option value="business">💼 Бизнес-услуги</option>
+        <option value="legal">⚖️ Юридические</option>
+        <option value="finance">💹 Финансы и бухгалтерия</option>
+        <option value="architecture">🏗️ Архитектура и интерьер</option>
+        <option value="gamedev">🕹️ Геймдев</option>
+        <option value="data">📊 Аналитика данных</option>
+        <option value="other">🔧 Другое</option>
       </select>
     </div>
     <div class="fg"><label class="fl">Описание (минимум 30 символов)</label><textarea class="fi" id="nj-desc" rows="5" placeholder="Опишите задачу подробно..."></textarea></div>
@@ -624,6 +694,15 @@ select.fi{cursor:pointer;}
 </div>
 
 <div class="toast" id="toast"></div>
+<div class="mobile-nav" id="mobileNav" style="display:none">
+  <div class="mobile-nav-items">
+    <div class="mnav-item active" onclick="sp('dashboard',null);setMobileNav(this)"><div class="mico">🏠</div>Главная</div>
+    <div class="mnav-item" onclick="sp('jobs',null);setMobileNav(this)"><div class="mico">💼</div>Заказы</div>
+    <div class="mnav-item" onclick="sp('freelancers',null);setMobileNav(this)"><div class="mico">👥</div>Люди</div>
+    <div class="mnav-item" onclick="sp('messages',null);setMobileNav(this)"><div class="mico">💬</div>Чаты</div>
+    <div class="mnav-item" onclick="sp('wallet',null);setMobileNav(this)"><div class="mico">💳</div>Кошелёк</div>
+  </div>
+</div>
 
 <script>
 // ===== STATE =====
@@ -651,13 +730,22 @@ let pendingUserId = null;
   animateCounters();
 })();
 
-function animateCounters() {
-  function count(el, end, suffix='') {
-    let n = 0; const step = Math.ceil(end/60);
-    const t = setInterval(() => { n = Math.min(n+step, end); el.textContent = n.toLocaleString('ru') + suffix; if(n>=end) clearInterval(t); }, 25);
+async function animateCounters() {
+  try {
+    const [users, jobsData] = await Promise.all([
+      UsersAPI.list({ limit: 1 }),
+      JobsAPI.list({ limit: 1 })
+    ]);
+    const uEl = document.getElementById('statUsers');
+    const jEl = document.getElementById('statJobs');
+    if (uEl) uEl.textContent = users.length >= 0 ? users.length || '–' : '–';
+    if (jEl && jobsData.total !== undefined) jEl.textContent = jobsData.total || '–';
+  } catch {
+    const uEl = document.getElementById('statUsers');
+    const jEl = document.getElementById('statJobs');
+    if (uEl) uEl.textContent = '–';
+    if (jEl) jEl.textContent = '–';
   }
-  count(document.getElementById('statUsers'), 1247);
-  count(document.getElementById('statJobs'), 3892);
 }
 
 // ===== NAVIGATION =====
@@ -705,6 +793,7 @@ function enterApp() {
 
   const initials = (currentUser.first_name[0] + currentUser.last_name[0]).toUpperCase();
   document.getElementById('navAvatar').textContent = initials;
+  document.getElementById('mobileNav').style.display = 'block';
 
   updateBadges();
   showPage('dashboard');
@@ -807,7 +896,7 @@ async function loadJobs(cat='', search='', page=1) {
 
 function renderJobCard(j) {
   const catClass = 'cat-'+j.category;
-  const catNames = {design:'Дизайн',dev:'Разработка',writing:'Текст',video:'Видео',marketing:'Маркетинг',music:'Музыка',photo:'Фото','3d':'3D'};
+  const catNames = {design:'Дизайн',dev:'Разработка',writing:'Текст',video:'Видео',marketing:'Маркетинг',music:'Музыка',photo:'Фото','3d':'3D',ai:'ИИ',smm:'SMM',translation:'Переводы',education:'Обучение',business:'Бизнес',legal:'Юридические',finance:'Финансы',architecture:'Архитектура',gamedev:'Геймдев',data:'Аналитика',other:'Другое'};
   const budget = j.budget_min && j.budget_max ? `₽${j.budget_min.toLocaleString('ru')}–${j.budget_max.toLocaleString('ru')}` : j.budget_min ? `от ₽${j.budget_min.toLocaleString('ru')}` : 'По договорённости';
   const tags = Array.isArray(j.tags) ? j.tags : [];
   return `<div class="jcard" onclick="openJob('${j.uuid}')">
@@ -1323,6 +1412,7 @@ async function logout() {
   document.getElementById('navUser').style.display = 'none';
   document.getElementById('navLinks').style.display = 'none';
   document.getElementById('sidebar').style.display = 'none';
+  document.getElementById('mobileNav').style.display = 'none';
   showPage('landing');
   toast('Вы вышли из аккаунта');
 }
@@ -1334,7 +1424,8 @@ async function postJob() {
   const desc = document.getElementById('nj-desc').value.trim();
   const bmin = parseInt(document.getElementById('nj-bmin').value)||null;
   const bmax = parseInt(document.getElementById('nj-bmax').value)||null;
-  const dl = document.getElementById('nj-dl').value||null;
+  const dlRaw = document.getElementById('nj-dl').value;
+  const dl = dlRaw ? dlRaw : undefined;
   const tagsRaw = document.getElementById('nj-tags').value;
   const tags = tagsRaw.split(',').map(t=>t.trim()).filter(Boolean);
   const err = document.getElementById('newJobErr');
@@ -1344,7 +1435,11 @@ async function postJob() {
   err.style.display = 'none';
   setBtnLoading('newJobBtn', true);
   try {
-    await JobsAPI.create({ title, category: cat, description: desc, budget_min: bmin, budget_max: bmax, deadline: dl, tags });
+    const jobData = { title, category: cat, description: desc, tags };
+    if (bmin) jobData.budget_min = bmin;
+    if (bmax) jobData.budget_max = bmax;
+    if (dl) jobData.deadline = dl;
+    await JobsAPI.create(jobData);
     closeM('newJobM');
     toast('Заказ опубликован!');
     if (currentPage === 'jobs') loadJobs();
@@ -1405,6 +1500,11 @@ function codeBack(e, idx) {
   if (e.key === 'Backspace' && !e.target.value && idx > 0) {
     document.querySelectorAll('#codeInputs input')[idx-1].focus();
   }
+}
+
+function setMobileNav(el) {
+  document.querySelectorAll('.mnav-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
 }
 
 // ===== TABS =====
