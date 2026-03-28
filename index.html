@@ -1,0 +1,1476 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ArtWin — Фриланс Площадка</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="/api.js"></script>
+<style>
+:root{--bg:#0a0a0f;--surface:#12121a;--surface2:#1a1a26;--border:#2a2a3d;--accent:#7c5cfc;--accent2:#fc5cf5;--accent3:#5cfcb4;--text:#f0f0ff;--muted:#8888aa;--gold:#ffd166;--red:#ff4d6d;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;}
+h1,h2,h3,h4,h5{font-family:'Syne',sans-serif;}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--accent);border-radius:3px;}
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:60px;background:rgba(10,10,15,.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+.logo{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;cursor:pointer;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.nav-links{display:flex;gap:4px;}
+.nav-link{padding:7px 14px;border-radius:8px;cursor:pointer;color:var(--muted);font-size:13px;font-weight:500;transition:.2s;}
+.nav-link:hover,.nav-link.active{color:var(--text);background:var(--surface2);}
+.nav-right{display:flex;gap:10px;align-items:center;}
+.btn{padding:7px 18px;border-radius:9px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;transition:.2s;}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text);}
+.btn-ghost:hover{background:var(--surface2);}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;box-shadow:0 0 18px rgba(124,92,252,.3);}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 0 28px rgba(124,92,252,.5);}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.btn-sm{padding:6px 13px;font-size:12px;border-radius:8px;}
+.btn-success{background:rgba(92,252,180,.12);color:var(--accent3);border:1px solid rgba(92,252,180,.25);}
+.btn-danger{background:rgba(255,77,109,.12);color:var(--red);border:1px solid rgba(255,77,109,.25);}
+.avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;cursor:pointer;flex-shrink:0;user-select:none;}
+.avatar.lg{width:56px;height:56px;font-size:20px;}
+.avatar.xl{width:88px;height:88px;font-size:30px;}
+/* LAYOUT */
+.layout{display:flex;padding-top:60px;min-height:100vh;}
+.sidebar{width:230px;flex-shrink:0;position:fixed;top:60px;bottom:0;left:0;background:var(--surface);border-right:1px solid var(--border);padding:16px 10px;display:flex;flex-direction:column;gap:3px;overflow-y:auto;}
+.sidebar-section{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;padding:10px 10px 5px;}
+.sitem{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:9px;cursor:pointer;color:var(--muted);font-size:13px;font-weight:500;transition:.15s;}
+.sitem:hover{background:var(--surface2);color:var(--text);}
+.sitem.active{background:rgba(124,92,252,.14);color:var(--accent);}
+.sitem .ico{font-size:16px;width:18px;text-align:center;}
+.sbadge{margin-left:auto;background:var(--accent);color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;font-weight:700;}
+.sbalance{margin-top:auto;padding:14px 10px;background:var(--surface2);border-radius:10px;border:1px solid var(--border);}
+.sbalance .lbl{font-size:10px;color:var(--muted);margin-bottom:3px;}
+.sbalance .amt{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:var(--accent3);}
+.main{margin-left:230px;flex:1;padding:28px;max-width:1400px;}
+/* PAGES */
+.page{display:none;}
+.page.active{display:block;}
+/* HERO */
+.hero{min-height:calc(100vh - 60px);display:flex;align-items:center;justify-content:center;text-align:center;padding:60px 28px;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(124,92,252,.16) 0%,transparent 70%),radial-gradient(ellipse 60% 40% at 80% 80%,rgba(252,92,245,.09) 0%,transparent 60%),var(--bg);}
+.hero h1{font-size:clamp(36px,5.5vw,72px);font-weight:800;line-height:1.05;margin-bottom:20px;}
+.hero h1 span{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{font-size:17px;color:var(--muted);max-width:520px;margin:0 auto 36px;line-height:1.7;}
+.hero-tag{display:inline-flex;align-items:center;gap:7px;background:rgba(124,92,252,.13);border:1px solid rgba(124,92,252,.28);border-radius:100px;padding:5px 14px;font-size:12px;color:var(--accent);margin-bottom:20px;}
+.hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+.hero-btns .btn{padding:13px 28px;font-size:15px;border-radius:13px;}
+.hero-stats{display:flex;gap:40px;justify-content:center;margin-top:56px;padding-top:40px;border-top:1px solid var(--border);flex-wrap:wrap;}
+.hero-stat .num{font-family:'Syne',sans-serif;font-size:32px;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero-stat .lbl{font-size:13px;color:var(--muted);margin-top:3px;}
+.hero-cats{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:32px;}
+.hero-cat{padding:7px 18px;border-radius:100px;border:1px solid var(--border);font-size:12px;cursor:pointer;transition:.2s;color:var(--muted);}
+.hero-cat:hover{border-color:var(--accent);color:var(--accent);background:rgba(124,92,252,.07);}
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;transition:.2s;}
+.card:hover{border-color:rgba(124,92,252,.35);box-shadow:0 4px 28px rgba(124,92,252,.08);}
+.grid-2{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px;}
+.grid-4{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;}
+/* JOB CARD */
+.jcard{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;cursor:pointer;transition:.2s;}
+.jcard:hover{border-color:rgba(124,92,252,.35);transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.25);}
+.cat-badge{display:inline-block;padding:3px 9px;border-radius:5px;font-size:10px;font-weight:600;margin-bottom:10px;}
+.cat-design{background:rgba(124,92,252,.14);color:#a78bfa;}
+.cat-dev{background:rgba(92,245,252,.1);color:#67e8f9;}
+.cat-writing{background:rgba(252,180,92,.1);color:#fbbf24;}
+.cat-video{background:rgba(252,92,92,.1);color:#f87171;}
+.cat-marketing{background:rgba(92,252,180,.1);color:var(--accent3);}
+.cat-music{background:rgba(245,92,252,.1);color:#e879f9;}
+.cat-photo{background:rgba(252,225,92,.1);color:#facc15;}
+.cat-3d{background:rgba(92,152,252,.1);color:#60a5fa;}
+.jcard h3{font-size:14px;font-weight:600;margin-bottom:7px;line-height:1.4;}
+.jcard .desc{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:12px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.jcard .budget{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--accent3);margin:10px 0;}
+.jcard .footer{display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);}
+.tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px;}
+.tag{padding:3px 9px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;font-size:11px;color:var(--muted);}
+/* FL CARD */
+.flcard{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;cursor:pointer;transition:.2s;text-align:center;}
+.flcard:hover{border-color:rgba(124,92,252,.35);transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.25);}
+.flcard .name{font-weight:600;margin-top:10px;margin-bottom:3px;font-size:14px;}
+.flcard .role{font-size:12px;color:var(--muted);margin-bottom:10px;}
+.flcard .rate{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--accent3);}
+.stars{color:var(--gold);font-size:12px;}
+/* PAGE HEADER */
+.ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:10px;}
+.ph h2{font-size:22px;font-weight:700;}
+.ph .sub{font-size:13px;color:var(--muted);margin-top:2px;}
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-bottom:24px;}
+.scard{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;}
+.scard .lbl{font-size:11px;color:var(--muted);margin-bottom:6px;}
+.scard .val{font-family:'Syne',sans-serif;font-size:24px;font-weight:700;}
+.scard .chg{font-size:11px;margin-top:3px;}
+.chg.up{color:var(--accent3);}
+/* FILTERS */
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+.fbtn{padding:6px 14px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:12px;cursor:pointer;transition:.15s;font-family:'DM Sans',sans-serif;}
+.fbtn:hover,.fbtn.active{background:rgba(124,92,252,.13);border-color:var(--accent);color:var(--accent);}
+/* SEARCH */
+.sbar{position:relative;margin-bottom:20px;}
+.sbar input{width:100%;padding:10px 18px 10px 42px;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:.2s;}
+.sbar input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(124,92,252,.12);}
+.sbar .ico{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:16px;}
+/* PROGRESS */
+.pbar{height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;}
+.pfill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));}
+/* TABS */
+.tabs{display:flex;gap:3px;border-bottom:1px solid var(--border);margin-bottom:20px;}
+.tab{padding:9px 18px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);border-bottom:2px solid transparent;transition:.15s;margin-bottom:-1px;}
+.tab:hover{color:var(--text);}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+/* MSGS */
+.msg-layout{display:grid;grid-template-columns:260px 1fr;height:calc(100vh - 60px - 56px - 24px);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+.msg-list{background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;}
+.msg-list-hdr{padding:14px 18px;border-bottom:1px solid var(--border);font-weight:600;font-size:14px;}
+.mitem{padding:12px 16px;display:flex;gap:10px;cursor:pointer;transition:.15s;border-bottom:1px solid rgba(255,255,255,.03);}
+.mitem:hover,.mitem.active{background:var(--surface2);}
+.mitem .info{flex:1;min-width:0;}
+.mitem .nm{font-size:13px;font-weight:500;}
+.mitem .pv{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;}
+.mitem .tm{font-size:10px;color:var(--muted);}
+.msg-area{display:flex;flex-direction:column;}
+.msg-hdr{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;background:var(--surface);}
+.msg-hdr .nm{font-weight:600;font-size:14px;}
+.msg-body{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:10px;}
+.bubble{max-width:68%;padding:9px 14px;border-radius:14px;font-size:13px;line-height:1.6;}
+.bubble.in{background:var(--surface2);border:1px solid var(--border);align-self:flex-start;border-bottom-left-radius:3px;}
+.bubble.out{background:linear-gradient(135deg,var(--accent),var(--accent2));align-self:flex-end;border-bottom-right-radius:3px;}
+.msg-inp{padding:14px;border-top:1px solid var(--border);display:flex;gap:10px;background:var(--surface);}
+.msg-inp input{flex:1;padding:9px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;}
+.msg-inp input:focus{border-color:var(--accent);}
+/* FORMS */
+.fg{margin-bottom:18px;}
+.fl{display:block;font-size:12px;font-weight:500;color:var(--muted);margin-bottom:7px;}
+.fi{width:100%;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:.2s;}
+.fi:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(124,92,252,.1);}
+textarea.fi{resize:vertical;min-height:90px;}
+select.fi{cursor:pointer;}
+.fi option{background:var(--surface2);}
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;pointer-events:none;transition:.2s;backdrop-filter:blur(4px);}
+.overlay.open{opacity:1;pointer-events:all;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:28px;max-width:560px;width:100%;max-height:90vh;overflow-y:auto;transform:translateY(16px);transition:.2s;}
+.overlay.open .modal{transform:translateY(0);}
+.mhdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.mhdr h3{font-size:18px;font-weight:700;}
+.mclose{background:var(--surface2);border:none;color:var(--muted);width:30px;height:30px;border-radius:7px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;}
+.mclose:hover{color:var(--text);}
+/* WALLET */
+.wcrd{background:linear-gradient(135deg,rgba(124,92,252,.18),rgba(252,92,245,.09));border:1px solid rgba(124,92,252,.28);border-radius:18px;padding:24px;position:relative;overflow:hidden;}
+.wcrd::before{content:'';position:absolute;top:-50px;right:-50px;width:180px;height:180px;border-radius:50%;background:rgba(124,92,252,.09);}
+.wcrd .wlbl{font-size:12px;color:var(--muted);margin-bottom:6px;}
+.wcrd .wamt{font-family:'Syne',sans-serif;font-size:38px;font-weight:800;background:linear-gradient(135deg,var(--accent3),#a0f0d0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.tx-item{display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid var(--border);}
+.tx-ico{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.tx-title{font-size:13px;font-weight:500;}
+.tx-date{font-size:11px;color:var(--muted);margin-top:1px;}
+.tx-amt{font-family:'Syne',sans-serif;font-weight:700;margin-left:auto;}
+.tx-amt.plus{color:var(--accent3);}
+.tx-amt.minus{color:var(--red);}
+/* NOTIF */
+.nitem{display:flex;gap:12px;padding:14px;border-radius:10px;margin-bottom:7px;border:1px solid var(--border);cursor:pointer;transition:.15s;}
+.nitem:hover{background:var(--surface2);}
+.nitem.unread{border-color:rgba(124,92,252,.28);background:rgba(124,92,252,.04);}
+.nico{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.ntitle{font-size:13px;font-weight:500;margin-bottom:3px;}
+.nbody{font-size:12px;color:var(--muted);line-height:1.5;}
+.ntime{font-size:10px;color:var(--muted);margin-top:4px;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:4px;}
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;z-index:999;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 18px;font-size:13px;max-width:300px;transform:translateY(70px);opacity:0;transition:.3s;box-shadow:0 8px 28px rgba(0,0,0,.4);}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.ok{border-color:rgba(92,252,180,.28);}
+.toast.er{border-color:rgba(255,77,109,.28);}
+/* EMPTY */
+.empty{text-align:center;padding:48px 16px;color:var(--muted);}
+.empty .ico{font-size:44px;margin-bottom:12px;}
+.empty h3{font-size:16px;font-weight:600;color:var(--text);margin-bottom:6px;}
+/* LOADING */
+.loading{text-align:center;padding:40px;color:var(--muted);}
+.spin{display:inline-block;width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* PORTFOLIO */
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;}
+.pitem{border-radius:14px;overflow:hidden;border:1px solid var(--border);cursor:pointer;transition:.2s;}
+.pitem:hover{transform:translateY(-3px);box-shadow:0 10px 36px rgba(0,0,0,.35);}
+.pthumb{height:180px;display:flex;align-items:center;justify-content:center;font-size:56px;}
+.pinfo{padding:14px;background:var(--surface);}
+.pinfo h4{font-size:13px;font-weight:600;margin-bottom:3px;}
+.pinfo .pm{font-size:11px;color:var(--muted);}
+/* PROFILE */
+.pcov{height:180px;border-radius:14px;background:linear-gradient(135deg,rgba(124,92,252,.28),rgba(252,92,245,.18));margin-bottom:-44px;position:relative;overflow:hidden;}
+.level-badge{padding:2px 8px;border-radius:5px;font-size:10px;font-weight:600;}
+.level-top{background:rgba(255,209,102,.13);color:var(--gold);}
+.level-pro{background:rgba(124,92,252,.13);color:var(--accent);}
+.level-new{background:rgba(92,252,180,.09);color:var(--accent3);}
+.online-dot{width:9px;height:9px;border-radius:50%;background:var(--accent3);display:inline-block;margin-right:5px;}
+/* CODE INPUT */
+.code-inputs{display:flex;gap:10px;justify-content:center;margin:20px 0;}
+.code-inputs input{width:48px;height:56px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:24px;font-weight:700;font-family:monospace;text-align:center;outline:none;transition:.2s;}
+.code-inputs input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(124,92,252,.15);}
+/* ERROR MSG */
+.err-msg{background:rgba(255,77,109,.1);border:1px solid rgba(255,77,109,.25);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--red);margin-bottom:14px;}
+/* REVIEW */
+.ritem{padding:14px;background:var(--surface2);border-radius:10px;margin-bottom:10px;}
+.ritem .rvr{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.ritem .rnm{font-weight:500;font-size:13px;}
+.ritem .rdt{font-size:11px;color:var(--muted);}
+.ritem .rtxt{font-size:13px;color:var(--muted);line-height:1.6;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.fade{animation:fadeUp .35s ease both;}
+@media(max-width:860px){.sidebar{display:none;}.main{margin-left:0;padding:14px;}.msg-layout{grid-template-columns:1fr;}.msg-list{display:none;}}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="logo" onclick="goLanding()">ArtWin</div>
+  <div class="nav-links" id="navLinks" style="display:none">
+    <div class="nav-link active" data-page="dashboard" onclick="nav(this)">🏠 Главная</div>
+    <div class="nav-link" data-page="jobs" onclick="nav(this)">💼 Заказы</div>
+    <div class="nav-link" data-page="freelancers" onclick="nav(this)">👥 Фрилансеры</div>
+    <div class="nav-link" data-page="messages" onclick="nav(this)">💬 Сообщения</div>
+  </div>
+  <div class="nav-right">
+    <div id="navGuest" style="display:flex;gap:8px">
+      <button class="btn btn-ghost btn-sm" onclick="openM('loginM')">Войти</button>
+      <button class="btn btn-primary btn-sm" onclick="openM('regM')">Регистрация</button>
+    </div>
+    <div id="navUser" style="display:none;align-items:center;gap:10px">
+      <div style="position:relative;cursor:pointer" onclick="showPage('notifications')">
+        <span style="font-size:20px">🔔</span>
+        <span id="notifBadge" style="display:none;position:absolute;top:-4px;right:-4px;background:var(--red);border-radius:50%;width:16px;height:16px;font-size:9px;display:none;align-items:center;justify-content:center;font-weight:700"></span>
+      </div>
+      <div class="avatar" id="navAvatar" onclick="showPage('profile')">?</div>
+    </div>
+  </div>
+</nav>
+
+<div class="layout">
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar" style="display:none">
+  <div class="sidebar-section">Меню</div>
+  <div class="sitem active" onclick="sp('dashboard',this)"><span class="ico">🏠</span>Дашборд</div>
+  <div class="sitem" onclick="sp('jobs',this)"><span class="ico">💼</span>Заказы<span class="sbadge" id="sbJobsBadge" style="display:none">!</span></div>
+  <div class="sitem" onclick="sp('my-gigs',this)"><span class="ico">🎯</span>Мои услуги</div>
+  <div class="sitem" onclick="sp('freelancers',this)"><span class="ico">👥</span>Фрилансеры</div>
+  <div class="sitem" onclick="sp('portfolio',this)"><span class="ico">🖼️</span>Портфолио</div>
+  <div class="sidebar-section">Личное</div>
+  <div class="sitem" onclick="sp('messages',this)"><span class="ico">💬</span>Сообщения<span class="sbadge" id="msgBadge" style="display:none">0</span></div>
+  <div class="sitem" onclick="sp('orders',this)"><span class="ico">📋</span>Мои заказы</div>
+  <div class="sitem" onclick="sp('wallet',this)"><span class="ico">💳</span>Кошелёк</div>
+  <div class="sitem" onclick="sp('notifications',this)"><span class="ico">🔔</span>Уведомления<span class="sbadge" id="notifSBadge" style="display:none">0</span></div>
+  <div class="sidebar-section">Аккаунт</div>
+  <div class="sitem" onclick="sp('profile',this)"><span class="ico">👤</span>Профиль</div>
+  <div class="sitem" onclick="sp('settings',this)"><span class="ico">⚙️</span>Настройки</div>
+  <div class="sitem" onclick="logout()"><span class="ico">🚪</span>Выйти</div>
+  <div class="sbalance">
+    <div class="lbl">Баланс</div>
+    <div class="amt" id="sidebarBalance">₽0</div>
+  </div>
+</div>
+
+<div class="main" id="mainWrap">
+
+<!-- LANDING -->
+<div id="page-landing" class="page active" style="margin-left:-28px;margin-right:-28px;margin-top:-28px;padding:0">
+  <div class="hero">
+    <div>
+      <div class="hero-tag">🚀 Присоединяйся к тысячам фрилансеров</div>
+      <h1>Найди таланты для<br><span>любого проекта</span></h1>
+      <p>ArtWin — платформа, где встречаются заказчики и профессионалы. Дизайн, разработка, текст, видео и сотни других направлений.</p>
+      <div class="hero-btns">
+        <button class="btn btn-primary" onclick="openM('regM')">Начать бесплатно →</button>
+        <button class="btn btn-ghost" onclick="openM('loginM')">Уже есть аккаунт</button>
+      </div>
+      <div class="hero-cats">
+        <div class="hero-cat" onclick="openM('regM')">🎨 Дизайн</div>
+        <div class="hero-cat" onclick="openM('regM')">💻 Разработка</div>
+        <div class="hero-cat" onclick="openM('regM')">✍️ Текст</div>
+        <div class="hero-cat" onclick="openM('regM')">🎬 Видео</div>
+        <div class="hero-cat" onclick="openM('regM')">📈 Маркетинг</div>
+        <div class="hero-cat" onclick="openM('regM')">🎵 Музыка</div>
+        <div class="hero-cat" onclick="openM('regM')">📸 Фото</div>
+        <div class="hero-cat" onclick="openM('regM')">🎮 3D</div>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="num" id="statUsers">0</div><div class="lbl">Фрилансеров</div></div>
+        <div class="hero-stat"><div class="num" id="statJobs">0</div><div class="lbl">Заказов</div></div>
+        <div class="hero-stat"><div class="num">98%</div><div class="lbl">Довольных клиентов</div></div>
+        <div class="hero-stat"><div class="num">200+</div><div class="lbl">Категорий</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="page-dashboard" class="page">
+  <div class="ph fade"><div><h2 id="dashGreet">Добро пожаловать!</h2><div class="sub">Вот что происходит</div></div>
+    <button class="btn btn-primary btn-sm" onclick="openM('newJobM')">+ Разместить заказ</button></div>
+  <div class="stats-row fade" id="dashStats">
+    <div class="scard"><div class="lbl">Активные проекты</div><div class="val" id="ds-active">–</div></div>
+    <div class="scard"><div class="lbl">Выполнено</div><div class="val" id="ds-done">–</div></div>
+    <div class="scard"><div class="lbl">Баланс</div><div class="val" id="ds-balance" style="color:var(--accent3)">–</div></div>
+    <div class="scard"><div class="lbl">Непрочитанных</div><div class="val" id="ds-unread">–</div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+    <div class="card fade" id="dashProjects"></div>
+    <div class="card fade" id="dashNotifs"></div>
+  </div>
+  <div style="margin-top:24px">
+    <div class="ph"><h3 style="font-size:17px;font-weight:700">Свежие заказы</h3><span class="tag" style="cursor:pointer" onclick="sp('jobs')">Все →</span></div>
+    <div class="grid-3" id="dashJobs"><div class="loading"><div class="spin"></div></div></div>
+  </div>
+</div>
+
+<!-- JOBS -->
+<div id="page-jobs" class="page">
+  <div class="ph fade"><div><h2>Биржа заказов</h2><div class="sub" id="jobsCount">Загрузка...</div></div>
+    <button class="btn btn-primary btn-sm" onclick="openM('newJobM')">+ Разместить заказ</button></div>
+  <div class="sbar fade"><span class="ico">🔍</span><input type="text" placeholder="Поиск заказов..." id="jobSearch" oninput="searchJobs(this.value)"></div>
+  <div class="filters fade" id="jobFilters">
+    <button class="fbtn active" onclick="filterCat('',this)">Все</button>
+    <button class="fbtn" onclick="filterCat('design',this)">🎨 Дизайн</button>
+    <button class="fbtn" onclick="filterCat('dev',this)">💻 Разработка</button>
+    <button class="fbtn" onclick="filterCat('writing',this)">✍️ Текст</button>
+    <button class="fbtn" onclick="filterCat('video',this)">🎬 Видео</button>
+    <button class="fbtn" onclick="filterCat('marketing',this)">📈 Маркетинг</button>
+    <button class="fbtn" onclick="filterCat('music',this)">🎵 Музыка</button>
+    <button class="fbtn" onclick="filterCat('photo',this)">📸 Фото</button>
+    <button class="fbtn" onclick="filterCat('3d',this)">🎮 3D</button>
+  </div>
+  <div class="grid-3" id="jobsGrid"><div class="loading"><div class="spin"></div></div></div>
+  <div id="jobsLoadMore" style="text-align:center;margin-top:20px;display:none">
+    <button class="btn btn-ghost" onclick="loadMoreJobs()">Загрузить ещё</button>
+  </div>
+</div>
+
+<!-- MY GIGS -->
+<div id="page-my-gigs" class="page">
+  <div class="ph fade"><div><h2>Мои услуги</h2><div class="sub">Управляйте своими предложениями</div></div>
+    <button class="btn btn-primary btn-sm" onclick="openM('newGigM')">+ Добавить услугу</button></div>
+  <div class="grid-3" id="myGigsGrid"><div class="loading"><div class="spin"></div></div></div>
+</div>
+
+<!-- FREELANCERS -->
+<div id="page-freelancers" class="page">
+  <div class="ph fade"><div><h2>Фрилансеры</h2><div class="sub">Найдите специалиста</div></div></div>
+  <div class="sbar fade"><span class="ico">🔍</span><input type="text" placeholder="Поиск фрилансеров..." id="flSearch" oninput="searchFreelancers(this.value)"></div>
+  <div class="filters fade">
+    <button class="fbtn active" onclick="filterFL('',this)">Все</button>
+    <button class="fbtn" onclick="filterFL('freelancer',this)">Фрилансеры</button>
+    <button class="fbtn" onclick="filterFL('client',this)">Заказчики</button>
+  </div>
+  <div class="grid-4" id="flGrid"><div class="loading"><div class="spin"></div></div></div>
+</div>
+
+<!-- PORTFOLIO -->
+<div id="page-portfolio" class="page">
+  <div class="ph fade"><div><h2>Портфолио</h2><div class="sub">Ваши лучшие работы</div></div>
+    <button class="btn btn-primary btn-sm" onclick="openM('newPortM')">+ Добавить</button></div>
+  <div class="pgrid" id="portGrid"><div class="loading"><div class="spin"></div></div></div>
+</div>
+
+<!-- MESSAGES -->
+<div id="page-messages" class="page">
+  <div class="ph fade"><h2>Сообщения</h2></div>
+  <div class="msg-layout fade">
+    <div class="msg-list">
+      <div class="msg-list-hdr">Чаты</div>
+      <div id="convList"><div class="loading" style="padding:20px"><div class="spin"></div></div></div>
+    </div>
+    <div class="msg-area">
+      <div class="msg-hdr" id="msgHdr"><span style="color:var(--muted);font-size:13px">Выберите чат</span></div>
+      <div class="msg-body" id="msgBody"></div>
+      <div class="msg-inp" id="msgInp" style="display:none">
+        <input id="msgInput" placeholder="Написать сообщение..." onkeydown="if(event.key==='Enter')sendMsg()">
+        <button class="btn btn-primary btn-sm" onclick="sendMsg()">→</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ORDERS -->
+<div id="page-orders" class="page">
+  <div class="ph fade"><div><h2>Мои заказы</h2></div></div>
+  <div class="tabs fade">
+    <div class="tab active" onclick="setTab(this,'otab-posted')">Размещённые мной</div>
+    <div class="tab" onclick="setTab(this,'otab-proposals')">Мои отклики</div>
+  </div>
+  <div id="otab-posted"><div class="loading"><div class="spin"></div></div></div>
+  <div id="otab-proposals" style="display:none"><div class="loading"><div class="spin"></div></div></div>
+</div>
+
+<!-- WALLET -->
+<div id="page-wallet" class="page">
+  <div class="ph fade"><div><h2>Кошелёк</h2></div></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px">
+    <div class="wcrd fade">
+      <div class="wlbl">Доступный баланс</div>
+      <div class="wamt" id="wBalance">₽0</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:6px" id="wEscrow">В эскроу: ₽0</div>
+      <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
+        <button class="btn btn-success btn-sm" onclick="openM('withdrawM')">↑ Вывести</button>
+        <button class="btn btn-ghost btn-sm" onclick="openM('topupM')">+ Пополнить</button>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="scard fade"><div class="lbl">Всего заработано</div><div class="val" id="wEarned" style="color:var(--accent3)">₽0</div></div>
+      <div class="scard fade"><div class="lbl">Всего потрачено</div><div class="val" id="wSpent">₽0</div></div>
+    </div>
+  </div>
+  <div class="fade">
+    <div style="font-size:15px;font-weight:600;margin-bottom:14px">История транзакций</div>
+    <div id="txList"><div class="loading"><div class="spin"></div></div></div>
+  </div>
+</div>
+
+<!-- NOTIFICATIONS -->
+<div id="page-notifications" class="page">
+  <div class="ph fade"><div><h2>Уведомления</h2><div class="sub" id="notifSubtitle"></div></div>
+    <button class="btn btn-ghost btn-sm" onclick="readAllNotifs()">Прочитать все</button></div>
+  <div id="notifList"><div class="loading"><div class="spin"></div></div></div>
+</div>
+
+<!-- PROFILE -->
+<div id="page-profile" class="page">
+  <div class="fade" id="profileContent"><div class="loading"><div class="spin"></div></div></div>
+</div>
+
+<!-- SETTINGS -->
+<div id="page-settings" class="page">
+  <div class="ph fade"><div><h2>Настройки профиля</h2></div>
+    <button class="btn btn-primary btn-sm" onclick="saveSettings()" id="saveSettingsBtn">Сохранить</button></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:28px" class="fade">
+    <div>
+      <h3 style="font-size:15px;margin-bottom:18px">Основная информация</h3>
+      <div class="fg"><label class="fl">Имя</label><input class="fi" id="s-first" placeholder="Имя"></div>
+      <div class="fg"><label class="fl">Фамилия</label><input class="fi" id="s-last" placeholder="Фамилия"></div>
+      <div class="fg"><label class="fl">Специализация</label><input class="fi" id="s-spec" placeholder="UI/UX дизайнер, разработчик..."></div>
+      <div class="fg"><label class="fl">Город</label><input class="fi" id="s-city" placeholder="Москва"></div>
+      <div class="fg"><label class="fl">О себе</label><textarea class="fi" id="s-bio" rows="4" placeholder="Расскажите о своём опыте..."></textarea></div>
+      <div class="fg"><label class="fl">Ставка (₽/час)</label><input class="fi" type="number" id="s-rate" placeholder="3000"></div>
+    </div>
+    <div>
+      <h3 style="font-size:15px;margin-bottom:18px">Навыки</h3>
+      <div id="skillsEditor"></div>
+      <button class="btn btn-ghost btn-sm" style="margin-top:10px" onclick="addSkillRow()">+ Добавить навык</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- main wrap -->
+</div><!-- layout -->
+
+<!-- MODALS -->
+
+<!-- LOGIN -->
+<div class="overlay" id="loginM">
+  <div class="modal">
+    <div class="mhdr"><h3>Войти в ArtWin</h3><button class="mclose" onclick="closeM('loginM')">✕</button></div>
+    <div id="loginErr" class="err-msg" style="display:none"></div>
+    <div class="fg"><label class="fl">Email</label><input class="fi" type="email" id="li-email" placeholder="your@email.com" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <div class="fg"><label class="fl">Пароль</label><input class="fi" type="password" id="li-pass" placeholder="Пароль" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <button class="btn btn-primary" id="loginBtn" style="width:100%;padding:11px;font-size:14px;margin-bottom:10px" onclick="doLogin()">Войти</button>
+    <div style="text-align:center;font-size:13px;color:var(--muted)">Нет аккаунта? <span style="color:var(--accent);cursor:pointer" onclick="closeM('loginM');openM('regM')">Зарегистрироваться</span></div>
+  </div>
+</div>
+
+<!-- REGISTER -->
+<div class="overlay" id="regM">
+  <div class="modal">
+    <div class="mhdr"><h3>Создать аккаунт</h3><button class="mclose" onclick="closeM('regM')">✕</button></div>
+    <div id="regErr" class="err-msg" style="display:none"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <div class="fg"><label class="fl">Имя</label><input class="fi" id="r-fn" placeholder="Алексей"></div>
+      <div class="fg"><label class="fl">Фамилия</label><input class="fi" id="r-ln" placeholder="Иванов"></div>
+    </div>
+    <div class="fg"><label class="fl">Email</label><input class="fi" type="email" id="r-email" placeholder="your@email.com"></div>
+    <div class="fg"><label class="fl">Пароль (минимум 8 символов)</label><input class="fi" type="password" id="r-pass" placeholder="Придумайте надёжный пароль"></div>
+    <div class="fg"><label class="fl">Я регистрируюсь как</label>
+      <select class="fi" id="r-role">
+        <option value="both">Фрилансер и заказчик</option>
+        <option value="freelancer">Только фрилансер</option>
+        <option value="client">Только заказчик</option>
+      </select>
+    </div>
+    <button class="btn btn-primary" id="regBtn" style="width:100%;padding:11px;font-size:14px;margin-bottom:10px" onclick="doRegister()">Создать аккаунт →</button>
+    <div style="text-align:center;font-size:13px;color:var(--muted)">Есть аккаунт? <span style="color:var(--accent);cursor:pointer" onclick="closeM('regM');openM('loginM')">Войти</span></div>
+  </div>
+</div>
+
+<!-- EMAIL VERIFY -->
+<div class="overlay" id="verifyM">
+  <div class="modal" style="max-width:420px;text-align:center">
+    <div class="mhdr"><h3>Подтверди email</h3><button class="mclose" onclick="closeM('verifyM')">✕</button></div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:6px">Мы отправили 6-значный код на</p>
+    <p style="font-size:14px;font-weight:600;margin-bottom:4px" id="verifyEmailDisplay"></p>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Код действителен 15 минут</p>
+    <div id="verifyErr" class="err-msg" style="display:none"></div>
+    <div class="code-inputs" id="codeInputs">
+      <input maxlength="1" oninput="codeInput(this,0)" onkeydown="codeBack(event,0)">
+      <input maxlength="1" oninput="codeInput(this,1)" onkeydown="codeBack(event,1)">
+      <input maxlength="1" oninput="codeInput(this,2)" onkeydown="codeBack(event,2)">
+      <input maxlength="1" oninput="codeInput(this,3)" onkeydown="codeBack(event,3)">
+      <input maxlength="1" oninput="codeInput(this,4)" onkeydown="codeBack(event,4)">
+      <input maxlength="1" oninput="codeInput(this,5)" onkeydown="codeBack(event,5)">
+    </div>
+    <button class="btn btn-primary" id="verifyBtn" style="width:100%;padding:11px;margin-bottom:12px" onclick="doVerify()">Подтвердить</button>
+    <div style="font-size:12px;color:var(--muted)">Не пришло письмо? <span style="color:var(--accent);cursor:pointer" onclick="resendCode()">Отправить снова</span></div>
+  </div>
+</div>
+
+<!-- NEW JOB -->
+<div class="overlay" id="newJobM">
+  <div class="modal">
+    <div class="mhdr"><h3>Разместить заказ</h3><button class="mclose" onclick="closeM('newJobM')">✕</button></div>
+    <div id="newJobErr" class="err-msg" style="display:none"></div>
+    <div class="fg"><label class="fl">Заголовок (минимум 10 символов)</label><input class="fi" id="nj-title" placeholder="Например: Разработка лендинга на React"></div>
+    <div class="fg"><label class="fl">Категория</label>
+      <select class="fi" id="nj-cat">
+        <option value="design">🎨 Дизайн</option><option value="dev">💻 Разработка</option>
+        <option value="writing">✍️ Текст и контент</option><option value="video">🎬 Видео</option>
+        <option value="marketing">📈 Маркетинг</option><option value="music">🎵 Музыка</option>
+        <option value="photo">📸 Фото</option><option value="3d">🎮 3D</option>
+      </select>
+    </div>
+    <div class="fg"><label class="fl">Описание (минимум 30 символов)</label><textarea class="fi" id="nj-desc" rows="5" placeholder="Опишите задачу подробно..."></textarea></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <div class="fg"><label class="fl">Бюджет от (₽)</label><input class="fi" type="number" id="nj-bmin" placeholder="5000"></div>
+      <div class="fg"><label class="fl">Бюджет до (₽)</label><input class="fi" type="number" id="nj-bmax" placeholder="15000"></div>
+    </div>
+    <div class="fg"><label class="fl">Дедлайн</label><input class="fi" type="date" id="nj-dl"></div>
+    <div class="fg"><label class="fl">Навыки (через запятую)</label><input class="fi" id="nj-tags" placeholder="React, Figma, TypeScript"></div>
+    <button class="btn btn-primary" id="newJobBtn" style="width:100%;padding:11px;font-size:14px" onclick="postJob()">Опубликовать заказ →</button>
+  </div>
+</div>
+
+<!-- NEW GIG -->
+<div class="overlay" id="newGigM">
+  <div class="modal">
+    <div class="mhdr"><h3>Добавить услугу</h3><button class="mclose" onclick="closeM('newGigM')">✕</button></div>
+    <div class="fg"><label class="fl">Название услуги</label><input class="fi" id="ng-title" placeholder="Создам логотип для вашего бренда"></div>
+    <div class="fg"><label class="fl">Категория</label><select class="fi" id="ng-cat"><option value="design">🎨 Дизайн</option><option value="dev">💻 Разработка</option><option value="writing">✍️ Текст</option><option value="video">🎬 Видео</option><option value="marketing">📈 Маркетинг</option></select></div>
+    <div class="fg"><label class="fl">Описание</label><textarea class="fi" id="ng-desc" rows="4" placeholder="Опишите услугу подробно..."></textarea></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <div class="fg"><label class="fl">Цена от (₽)</label><input class="fi" type="number" id="ng-price" placeholder="5000"></div>
+      <div class="fg"><label class="fl">Срок (дней)</label><input class="fi" type="number" id="ng-days" placeholder="7"></div>
+    </div>
+    <button class="btn btn-primary" style="width:100%;padding:11px" onclick="closeM('newGigM');toast('Услуга добавлена! Скоро появится интеграция.')">Опубликовать</button>
+  </div>
+</div>
+
+<!-- PORTFOLIO ADD -->
+<div class="overlay" id="newPortM">
+  <div class="modal">
+    <div class="mhdr"><h3>Добавить работу</h3><button class="mclose" onclick="closeM('newPortM')">✕</button></div>
+    <div id="portErr" class="err-msg" style="display:none"></div>
+    <div class="fg"><label class="fl">Название проекта</label><input class="fi" id="np-title" placeholder="Редизайн мобильного приложения"></div>
+    <div class="fg"><label class="fl">Категория</label><select class="fi" id="np-cat"><option value="design">🎨 Дизайн</option><option value="dev">💻 Разработка</option><option value="video">🎬 Видео</option><option value="photo">📸 Фото</option></select></div>
+    <div class="fg"><label class="fl">Описание</label><textarea class="fi" id="np-desc" rows="3" placeholder="Расскажите о проекте..."></textarea></div>
+    <div class="fg"><label class="fl">Ссылка на изображение (URL)</label><input class="fi" id="np-img" placeholder="https://..."></div>
+    <div class="fg"><label class="fl">Ссылка на проект (необязательно)</label><input class="fi" id="np-url" placeholder="https://..."></div>
+    <button class="btn btn-primary" id="addPortBtn" style="width:100%;padding:11px" onclick="addPortfolio()">Добавить →</button>
+  </div>
+</div>
+
+<!-- PROPOSAL -->
+<div class="overlay" id="propM">
+  <div class="modal">
+    <div class="mhdr"><h3>Откликнуться на заказ</h3><button class="mclose" onclick="closeM('propM')">✕</button></div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:18px" id="propJobTitle"></p>
+    <div id="propErr" class="err-msg" style="display:none"></div>
+    <div class="fg"><label class="fl">Сопроводительное письмо (минимум 50 символов)</label><textarea class="fi" id="pr-letter" rows="5" placeholder="Расскажите почему именно вы подходите для этого проекта..."></textarea></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <div class="fg"><label class="fl">Ваша цена (₽)</label><input class="fi" type="number" id="pr-price" placeholder="15000"></div>
+      <div class="fg"><label class="fl">Срок (дней)</label><input class="fi" type="number" id="pr-days" placeholder="14"></div>
+    </div>
+    <button class="btn btn-primary" id="propBtn" style="width:100%;padding:11px" onclick="sendProposal()">Отправить отклик →</button>
+  </div>
+</div>
+
+<!-- WITHDRAW -->
+<div class="overlay" id="withdrawM">
+  <div class="modal" style="max-width:380px">
+    <div class="mhdr"><h3>Вывод средств</h3><button class="mclose" onclick="closeM('withdrawM')">✕</button></div>
+    <div style="background:rgba(92,252,180,.07);border:1px solid rgba(92,252,180,.18);border-radius:10px;padding:14px;margin-bottom:18px;text-align:center">
+      <div style="font-size:11px;color:var(--muted)">Доступно</div>
+      <div style="font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:var(--accent3)" id="wdAvail">₽0</div>
+    </div>
+    <div class="fg"><label class="fl">Сумма (₽, минимум 500)</label><input class="fi" type="number" id="wd-amt" placeholder="10000"></div>
+    <div class="fg"><label class="fl">Реквизиты</label><input class="fi" id="wd-method" placeholder="Номер карты, ЮMoney, USDT адрес..."></div>
+    <button class="btn btn-success" style="width:100%;padding:11px" id="wdBtn" onclick="doWithdraw()">Вывести</button>
+  </div>
+</div>
+
+<div class="overlay" id="topupM">
+  <div class="modal" style="max-width:380px">
+    <div class="mhdr"><h3>Пополнить кошелёк</h3><button class="mclose" onclick="closeM('topupM')">✕</button></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px">
+      <div class="topup-opt" data-v="5000">₽5,000</div>
+      <div class="topup-opt active-opt" data-v="10000">₽10,000</div>
+      <div class="topup-opt" data-v="25000">₽25,000</div>
+    </div>
+    <style>.topup-opt{padding:11px;border:1px solid var(--border);border-radius:9px;text-align:center;cursor:pointer;font-size:13px;font-weight:500;transition:.15s;}.topup-opt:hover,.active-opt{border-color:var(--accent);color:var(--accent);background:rgba(124,92,252,.08);}</style>
+    <div class="fg" style="margin-top:8px"><label class="fl">Или введите сумму (₽)</label><input class="fi" type="number" id="tp-amt" placeholder="Любая сумма"></div>
+    <div class="fg"><label class="fl">Метод оплаты</label>
+      <select class="fi"><option>Банковская карта</option><option>СБП</option><option>USDT TRC20</option></select>
+    </div>
+    <button class="btn btn-primary" style="width:100%;padding:11px" onclick="closeM('topupM');toast('Функция пополнения в разработке. Свяжитесь с поддержкой.')">Перейти к оплате</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== STATE =====
+let currentUser = null;
+let currentPage = 'landing';
+let jobsPage = 1;
+let jobsCat = '';
+let jobsSearch = '';
+let activeJobUuid = null;
+let pendingUserId = null;
+
+// ===== INIT =====
+(async function init() {
+  const u = User.get();
+  const t = Token.get();
+  if (u && t) {
+    try {
+      currentUser = await UsersAPI.me();
+      User.set(currentUser);
+      enterApp();
+    } catch {
+      Token.clear();
+    }
+  }
+  animateCounters();
+})();
+
+function animateCounters() {
+  function count(el, end, suffix='') {
+    let n = 0; const step = Math.ceil(end/60);
+    const t = setInterval(() => { n = Math.min(n+step, end); el.textContent = n.toLocaleString('ru') + suffix; if(n>=end) clearInterval(t); }, 25);
+  }
+  count(document.getElementById('statUsers'), 1247);
+  count(document.getElementById('statJobs'), 3892);
+}
+
+// ===== NAVIGATION =====
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const p = document.getElementById('page-'+name);
+  if (!p) return;
+  p.classList.add('active');
+  currentPage = name;
+
+  if (name === 'landing') {
+    document.getElementById('sidebar').style.display = 'none';
+    document.getElementById('mainWrap').style.marginLeft = '0';
+    document.getElementById('navLinks').style.display = 'none';
+  }
+  window.scrollTo(0, 0);
+  loadPage(name);
+}
+
+function sp(name, el) {
+  showPage(name);
+  if (el) {
+    document.querySelectorAll('.sitem').forEach(i => i.classList.remove('active'));
+    el.classList.add('active');
+  }
+}
+
+function nav(el) {
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  el.classList.add('active');
+  showPage(el.dataset.page);
+}
+
+function goLanding() {
+  if (currentUser) { showPage('dashboard'); return; }
+  showPage('landing');
+}
+
+function enterApp() {
+  document.getElementById('navGuest').style.display = 'none';
+  document.getElementById('navUser').style.display = 'flex';
+  document.getElementById('navLinks').style.display = 'flex';
+  document.getElementById('sidebar').style.display = 'flex';
+  document.getElementById('mainWrap').style.marginLeft = '';
+
+  const initials = (currentUser.first_name[0] + currentUser.last_name[0]).toUpperCase();
+  document.getElementById('navAvatar').textContent = initials;
+
+  updateBadges();
+  showPage('dashboard');
+}
+
+async function updateBadges() {
+  if (!currentUser) return;
+  try {
+    const me = await UsersAPI.me();
+    currentUser = { ...currentUser, ...me };
+    User.set(currentUser);
+
+    if (me.unread_notifications > 0) {
+      const b = document.getElementById('notifSBadge');
+      b.textContent = me.unread_notifications;
+      b.style.display = 'inline';
+      document.getElementById('notifBadge').style.display = 'flex';
+      document.getElementById('notifBadge').textContent = me.unread_notifications;
+    }
+    if (me.unread_messages > 0) {
+      const b = document.getElementById('msgBadge');
+      b.textContent = me.unread_messages;
+      b.style.display = 'inline';
+    }
+    if (me.balance !== undefined) {
+      document.getElementById('sidebarBalance').textContent = '₽' + (me.balance / 100).toLocaleString('ru');
+    }
+  } catch {}
+}
+
+// ===== PAGE LOADERS =====
+async function loadPage(name) {
+  if (!currentUser && name !== 'landing') return;
+  if (name === 'dashboard') loadDashboard();
+  else if (name === 'jobs') loadJobs();
+  else if (name === 'freelancers') loadFreelancers();
+  else if (name === 'portfolio') loadPortfolio();
+  else if (name === 'messages') loadMessages();
+  else if (name === 'orders') loadOrders();
+  else if (name === 'wallet') loadWallet();
+  else if (name === 'notifications') loadNotifications();
+  else if (name === 'profile') loadProfile();
+  else if (name === 'settings') loadSettings();
+  else if (name === 'my-gigs') loadMyGigs();
+}
+
+// DASHBOARD
+async function loadDashboard() {
+  document.getElementById('dashGreet').textContent = `Привет, ${currentUser.first_name}! 👋`;
+  document.getElementById('ds-active').textContent = '—';
+  document.getElementById('ds-done').textContent = '—';
+  document.getElementById('ds-balance').textContent = '₽' + ((currentUser.balance || 0) / 100).toLocaleString('ru');
+  document.getElementById('ds-unread').textContent = currentUser.unread_notifications || 0;
+
+  // Загружаем проекты в дашборд
+  document.getElementById('dashProjects').innerHTML = `<h3 style="font-size:15px;margin-bottom:14px">Активные проекты</h3><div class="empty" style="padding:20px"><div class="ico">📋</div><div>Нет активных проектов</div></div>`;
+  document.getElementById('dashNotifs').innerHTML = `<h3 style="font-size:15px;margin-bottom:14px">Уведомления</h3><div id="dashNotifList"></div>`;
+
+  // Загружаем нотифы
+  try {
+    const { notifications } = await NotifsAPI.list();
+    const dnl = document.getElementById('dashNotifList');
+    if (!notifications.length) { dnl.innerHTML = '<div style="font-size:13px;color:var(--muted);padding:12px 0">Нет уведомлений</div>'; return; }
+    dnl.innerHTML = notifications.slice(0,4).map(n => `
+      <div class="nitem ${n.is_read?'':'unread'}" style="padding:10px;margin-bottom:6px" onclick="markNotifRead(${n.id},this)">
+        <div class="nico" style="background:rgba(124,92,252,.1)">🔔</div>
+        <div><div class="ntitle">${escHtml(n.title)}</div><div class="nbody">${escHtml(n.body||'')}</div></div>
+        ${!n.is_read ? '<div class="dot"></div>' : ''}
+      </div>
+    `).join('');
+  } catch {}
+
+  // Загружаем заказы
+  try {
+    const { jobs } = await JobsAPI.list({ limit: 3 });
+    document.getElementById('dashJobs').innerHTML = jobs.length ? jobs.map(renderJobCard).join('') : '<div class="empty"><div class="ico">💼</div><h3>Заказов пока нет</h3></div>';
+  } catch (e) {
+    document.getElementById('dashJobs').innerHTML = '<div class="empty"><div class="ico">⚠️</div><h3>Ошибка загрузки</h3></div>';
+  }
+}
+
+// JOBS
+let jobsData = [];
+async function loadJobs(cat='', search='', page=1) {
+  const grid = document.getElementById('jobsGrid');
+  if (page === 1) grid.innerHTML = '<div class="loading"><div class="spin"></div></div>';
+  try {
+    const params = { limit: 12, page };
+    if (cat) params.category = cat;
+    if (search) params.search = search;
+    const { jobs, total } = await JobsAPI.list(params);
+    if (page === 1) jobsData = jobs; else jobsData = [...jobsData, ...jobs];
+    document.getElementById('jobsCount').textContent = `Найдено заказов: ${total}`;
+    grid.innerHTML = jobsData.length ? jobsData.map(renderJobCard).join('') : '<div class="empty"><div class="ico">💼</div><h3>Заказов не найдено</h3></div>';
+    document.getElementById('jobsLoadMore').style.display = jobsData.length < total ? 'block' : 'none';
+  } catch (e) {
+    grid.innerHTML = `<div class="empty"><div class="ico">⚠️</div><h3>${e.message || 'Ошибка загрузки'}</h3></div>`;
+  }
+}
+
+function renderJobCard(j) {
+  const catClass = 'cat-'+j.category;
+  const catNames = {design:'Дизайн',dev:'Разработка',writing:'Текст',video:'Видео',marketing:'Маркетинг',music:'Музыка',photo:'Фото','3d':'3D'};
+  const budget = j.budget_min && j.budget_max ? `₽${j.budget_min.toLocaleString('ru')}–${j.budget_max.toLocaleString('ru')}` : j.budget_min ? `от ₽${j.budget_min.toLocaleString('ru')}` : 'По договорённости';
+  const tags = Array.isArray(j.tags) ? j.tags : [];
+  return `<div class="jcard" onclick="openJob('${j.uuid}')">
+    <div class="cat-badge ${catClass}">${catNames[j.category]||j.category}</div>
+    <h3>${escHtml(j.title)}</h3>
+    <div class="desc">${escHtml(j.description)}</div>
+    <div class="tags">${tags.slice(0,4).map(t=>`<span class="tag">${escHtml(t)}</span>`).join('')}</div>
+    <div class="budget">${budget}</div>
+    <div class="footer">
+      <div style="font-size:11px;color:var(--muted)">💬 ${j.proposals_count||0} откликов · ${timeAgo(j.created_at)}</div>
+      <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();openProposal('${j.uuid}',${JSON.stringify(escHtml(j.title)).replace(/"/g,'&quot;')})">Откликнуться</button>
+    </div>
+  </div>`;
+}
+
+function filterCat(cat, btn) {
+  jobsCat = cat; jobsPage = 1;
+  document.querySelectorAll('#jobFilters .fbtn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  loadJobs(cat, jobsSearch);
+}
+
+let searchTimeout;
+function searchJobs(v) {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => { jobsSearch = v; jobsPage = 1; loadJobs(jobsCat, v); }, 400);
+}
+
+function loadMoreJobs() { jobsPage++; loadJobs(jobsCat, jobsSearch, jobsPage); }
+
+// FREELANCERS
+async function loadFreelancers(role='', search='') {
+  const grid = document.getElementById('flGrid');
+  grid.innerHTML = '<div class="loading"><div class="spin"></div></div>';
+  try {
+    const params = {};
+    if (role) params.role = role;
+    if (search) params.search = search;
+    const users = await UsersAPI.list(params);
+    grid.innerHTML = users.length ? users.map(u => {
+      const initials = (u.first_name[0]+(u.last_name[0]||'')).toUpperCase();
+      const rating = u.avg_rating ? parseFloat(u.avg_rating).toFixed(1) : '–';
+      const stars = u.avg_rating ? '★'.repeat(Math.round(u.avg_rating)) : '';
+      return `<div class="flcard" onclick="viewProfile('${u.uuid}')">
+        <div class="avatar xl" style="margin:0 auto">${initials}</div>
+        <div class="name">${escHtml(u.first_name)} ${escHtml(u.last_name)}</div>
+        <div class="role">${escHtml(u.specialization||'Специалист')}</div>
+        <div class="stars">${stars} ${rating} (${u.review_count||0})</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:4px">📍 ${escHtml(u.city||'Не указан')}</div>
+        <div class="rate" style="margin-top:10px">${u.hourly_rate ? '₽'+u.hourly_rate.toLocaleString('ru')+'/час' : 'По договорённости'}</div>
+      </div>`;
+    }).join('') : '<div class="empty"><div class="ico">👥</div><h3>Фрилансеров не найдено</h3></div>';
+  } catch (e) {
+    grid.innerHTML = `<div class="empty"><div class="ico">⚠️</div><h3>${e.message}</h3></div>`;
+  }
+}
+
+function filterFL(role, btn) {
+  document.querySelectorAll('#page-freelancers .fbtn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  loadFreelancers(role);
+}
+
+let flSearchTimeout;
+function searchFreelancers(v) {
+  clearTimeout(flSearchTimeout);
+  flSearchTimeout = setTimeout(() => loadFreelancers('', v), 400);
+}
+
+// PORTFOLIO
+async function loadPortfolio() {
+  const grid = document.getElementById('portGrid');
+  grid.innerHTML = '<div class="loading"><div class="spin"></div></div>';
+  try {
+    const items = await UsersAPI.getPortfolio();
+    renderPortfolioGrid(items, grid);
+  } catch (e) {
+    grid.innerHTML = `<div class="empty"><div class="ico">⚠️</div><h3>${e.message}</h3></div>`;
+  }
+}
+
+function renderPortfolioGrid(items, grid) {
+  if (!items.length) {
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="ico">🖼️</div><h3>Нет работ в портфолио</h3><p>Добавьте свои лучшие проекты</p></div>';
+    return;
+  }
+  const emojis = {design:'🎨',dev:'💻',writing:'✍️',video:'🎬',photo:'📸','3d':'🎮',marketing:'📈'};
+  const bgs = ['linear-gradient(135deg,rgba(124,92,252,.25),rgba(252,92,245,.15))','linear-gradient(135deg,rgba(92,245,252,.18),rgba(92,152,252,.15))','linear-gradient(135deg,rgba(252,180,92,.18),rgba(252,92,92,.15))','linear-gradient(135deg,rgba(92,252,180,.18),rgba(92,245,252,.15))'];
+  grid.innerHTML = items.map((item,i) => `
+    <div class="pitem">
+      ${item.image_url ? `<div class="pthumb" style="background:${bgs[i%4]}"><img src="${escHtml(item.image_url)}" style="max-width:100%;max-height:100%;object-fit:cover;"></div>` : `<div class="pthumb" style="background:${bgs[i%4]}">${emojis[item.category]||'🖼️'}</div>`}
+      <div class="pinfo">
+        <h4>${escHtml(item.title)}</h4>
+        <div class="pm">${escHtml(item.category||'')} · ${timeAgo(item.created_at)}</div>
+        <div style="display:flex;gap:6px;margin-top:8px">
+          ${item.project_url ? `<a href="${escHtml(item.project_url)}" target="_blank" class="btn btn-ghost btn-sm">🔗 Открыть</a>` : ''}
+          <button class="btn btn-danger btn-sm" onclick="delPortfolio(${item.id})">🗑️</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function addPortfolio() {
+  const title = document.getElementById('np-title').value.trim();
+  const cat = document.getElementById('np-cat').value;
+  const desc = document.getElementById('np-desc').value.trim();
+  const img = document.getElementById('np-img').value.trim();
+  const url = document.getElementById('np-url').value.trim();
+  const err = document.getElementById('portErr');
+
+  if (!title) { err.textContent = 'Введите название'; err.style.display='block'; return; }
+  err.style.display = 'none';
+
+  setBtnLoading('addPortBtn', true);
+  try {
+    await UsersAPI.addPortfolio({ title, category: cat, description: desc, image_url: img||undefined, project_url: url||undefined });
+    closeM('newPortM');
+    toast('Работа добавлена!');
+    loadPortfolio();
+  } catch(e) { err.textContent = e.message; err.style.display='block'; }
+  setBtnLoading('addPortBtn', false);
+}
+
+async function delPortfolio(id) {
+  if (!confirm('Удалить работу из портфолио?')) return;
+  try { await UsersAPI.deletePortfolio(id); toast('Удалено'); loadPortfolio(); }
+  catch(e) { toast(e.message, 'er'); }
+}
+
+// MESSAGES
+let activeConvUuid = null;
+async function loadMessages() {
+  const list = document.getElementById('convList');
+  list.innerHTML = '<div class="loading" style="padding:20px"><div class="spin"></div></div>';
+  try {
+    const convs = await MessagesAPI.conversations();
+    if (!convs.length) { list.innerHTML = '<div style="padding:16px;font-size:13px;color:var(--muted)">Нет переписок</div>'; return; }
+    list.innerHTML = convs.map(c => `
+      <div class="mitem" onclick="openConv('${c.uuid}','${escHtml(c.first_name)} ${escHtml(c.last_name)}',this)">
+        <div class="avatar" style="font-size:12px">${(c.first_name[0]+c.last_name[0]).toUpperCase()}</div>
+        <div class="info"><div class="nm">${escHtml(c.first_name)} ${escHtml(c.last_name)}</div><div class="pv">${escHtml(c.last_message||'')}</div></div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+          <div class="tm">${timeAgo(c.created_at)}</div>
+          ${c.unread_count > 0 ? `<div style="width:16px;height:16px;background:var(--accent);border-radius:50%;font-size:9px;display:flex;align-items:center;justify-content:center;font-weight:700">${c.unread_count}</div>` : ''}
+        </div>
+      </div>
+    `).join('');
+  } catch(e) { list.innerHTML = `<div style="padding:16px;font-size:13px;color:var(--red)">${e.message}</div>`; }
+}
+
+async function openConv(uuid, name, el) {
+  document.querySelectorAll('.mitem').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  activeConvUuid = uuid;
+  document.getElementById('msgHdr').innerHTML = `<div class="avatar" style="font-size:12px">${name.split(' ').map(n=>n[0]).join('').toUpperCase()}</div><div><div class="nm">${escHtml(name)}</div><div style="font-size:11px;color:var(--accent3)">В сети</div></div>`;
+  document.getElementById('msgInp').style.display = 'flex';
+  const body = document.getElementById('msgBody');
+  body.innerHTML = '<div class="loading"><div class="spin"></div></div>';
+  try {
+    const msgs = await MessagesAPI.history(uuid);
+    body.innerHTML = msgs.map(m => `<div class="bubble ${m.sender_id === currentUser.id ? 'out' : 'in'}">${escHtml(m.content)}</div>`).join('');
+    body.scrollTop = body.scrollHeight;
+  } catch(e) { body.innerHTML = `<div class="empty"><div class="ico">⚠️</div><h3>${e.message}</h3></div>`; }
+}
+
+async function sendMsg() {
+  if (!activeConvUuid) return;
+  const input = document.getElementById('msgInput');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  const body = document.getElementById('msgBody');
+  const el = document.createElement('div');
+  el.className = 'bubble out';
+  el.textContent = text;
+  body.appendChild(el);
+  body.scrollTop = body.scrollHeight;
+  try { await MessagesAPI.send(activeConvUuid, text); }
+  catch(e) { toast(e.message, 'er'); }
+}
+
+// ORDERS
+async function loadOrders() {
+  const posted = document.getElementById('otab-posted');
+  const proposals = document.getElementById('otab-proposals');
+  posted.innerHTML = '<div class="loading"><div class="spin"></div></div>';
+  proposals.innerHTML = '<div class="loading"><div class="spin"></div></div>';
+  try {
+    const jobs = await JobsAPI.myPosted();
+    posted.innerHTML = jobs.length ? jobs.map(j => `
+      <div class="card" style="margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px">
+          <h3 style="font-size:15px">${escHtml(j.title)}</h3>
+          <span style="font-size:12px;padding:4px 10px;border-radius:7px;background:rgba(92,252,180,.1);color:var(--accent3)">${j.status}</span>
+        </div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:12px">
+          ${j.proposals_count||0} откликов · ${j.budget_min ? '₽'+j.budget_min.toLocaleString('ru') : 'По договорённости'} · ${timeAgo(j.created_at)}
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost btn-sm" onclick="openJob('${j.uuid}')">Смотреть отклики (${j.proposals_count||0})</button>
+          ${j.status==='open' ? `<button class="btn btn-danger btn-sm" onclick="deleteJob('${j.uuid}')">Удалить</button>` : ''}
+        </div>
+      </div>
+    `).join('') : '<div class="empty"><div class="ico">💼</div><h3>Вы ещё не размещали заказы</h3><p>Разместите первый заказ бесплатно</p></div>';
+  } catch(e) { posted.innerHTML = `<div class="empty"><div class="ico">⚠️</div><h3>${e.message}</h3></div>`; }
+
+  try {
+    const props = await JobsAPI.myProposals();
+    const statColors = {pending:'rgba(124,92,252,.1)',accepted:'rgba(92,252,180,.1)',rejected:'rgba(255,77,109,.1)'};
+    const statLabels = {pending:'Ожидание',accepted:'Принят',rejected:'Отклонён'};
+    proposals.innerHTML = props.length ? props.map(p => `
+      <div class="card" style="margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px">
+          <h3 style="font-size:15px">${escHtml(p.job_title)}</h3>
+          <span style="font-size:12px;padding:4px 10px;border-radius:7px;background:${statColors[p.status]}">${statLabels[p.status]}</span>
+        </div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:4px">
+          Ваша цена: <b style="color:var(--text)">₽${p.price.toLocaleString('ru')}</b> · Срок: ${p.delivery_days} дней
+        </div>
+        <div style="font-size:12px;color:var(--muted)">Заказчик: ${escHtml(p.client_first)} ${escHtml(p.client_last)} · ${timeAgo(p.created_at)}</div>
+      </div>
+    `).join('') : '<div class="empty"><div class="ico">📝</div><h3>Вы ещё не откликались на заказы</h3></div>';
+  } catch(e) { proposals.innerHTML = `<div class="empty"><div class="ico">⚠️</div><h3>${e.message}</h3></div>`; }
+}
+
+async function deleteJob(uuid) {
+  if (!confirm('Удалить заказ?')) return;
+  try { await JobsAPI.delete(uuid); toast('Заказ удалён'); loadOrders(); }
+  catch(e) { toast(e.message, 'er'); }
+}
+
+// WALLET
+async function loadWallet() {
+  try {
+    const w = await WalletAPI.get();
+    document.getElementById('wBalance').textContent = '₽' + w.balance.toLocaleString('ru', {minimumFractionDigits:2});
+    document.getElementById('wEscrow').textContent = `В эскроу: ₽${w.escrow.toLocaleString('ru')}`;
+    document.getElementById('wEarned').textContent = '₽' + w.total_earned.toLocaleString('ru');
+    document.getElementById('wSpent').textContent = '₽' + w.total_spent.toLocaleString('ru');
+    document.getElementById('wdAvail').textContent = '₽' + w.balance.toLocaleString('ru');
+  } catch {}
+
+  const txList = document.getElementById('txList');
+  txList.innerHTML = '<div class="loading"><div class="spin"></div></div>';
+  try {
+    const txs = await WalletAPI.transactions();
+    if (!txs.length) { txList.innerHTML = '<div class="empty"><div class="ico">💳</div><h3>Нет транзакций</h3></div>'; return; }
+    const typeEmoji = {deposit:'💰',withdrawal:'↑',escrow_lock:'🔒',escrow_release:'🔓',payment:'💸',refund:'↩️'};
+    txList.innerHTML = txs.map(t => `
+      <div class="tx-item">
+        <div class="tx-ico" style="background:rgba(124,92,252,.1)">${typeEmoji[t.type]||'💳'}</div>
+        <div><div class="tx-title">${escHtml(t.description||t.type)}</div><div class="tx-date">${formatDate(t.created_at)}</div></div>
+        <div class="tx-amt ${t.direction==='in'?'plus':'minus'}">${t.direction==='in'?'+':'-'}₽${t.amount.toLocaleString('ru', {minimumFractionDigits:2})}</div>
+      </div>
+    `).join('');
+  } catch(e) { txList.innerHTML = `<div class="empty"><div class="ico">⚠️</div><h3>${e.message}</h3></div>`; }
+}
+
+async function doWithdraw() {
+  const amount = parseFloat(document.getElementById('wd-amt').value);
+  const method = document.getElementById('wd-method').value.trim();
+  if (!amount || amount < 500) { toast('Минимум ₽500', 'er'); return; }
+  if (!method) { toast('Укажите реквизиты', 'er'); return; }
+  setBtnLoading('wdBtn', true);
+  try {
+    await WalletAPI.withdraw(amount, method);
+    closeM('withdrawM');
+    toast('Заявка на вывод принята!');
+    loadWallet();
+  } catch(e) { toast(e.message, 'er'); }
+  setBtnLoading('wdBtn', false);
+}
+
+// NOTIFICATIONS
+async function loadNotifications() {
+  const list = document.getElementById('notifList');
+  list.innerHTML = '<div class="loading"><div class="spin"></div></div>';
+  try {
+    const { notifications, unread } = await NotifsAPI.list();
+    document.getElementById('notifSubtitle').textContent = unread > 0 ? `${unread} непрочитанных` : 'Всё прочитано';
+    if (!notifications.length) { list.innerHTML = '<div class="empty"><div class="ico">🔔</div><h3>Нет уведомлений</h3></div>'; return; }
+    const icons = {message:'💬',proposal:'📝',payment:'💳',system:'🔔',review:'⭐'};
+    const colors = {message:'rgba(92,252,180,.1)',proposal:'rgba(124,92,252,.1)',payment:'rgba(92,252,180,.1)',system:'rgba(255,209,102,.1)',review:'rgba(255,209,102,.1)'};
+    list.innerHTML = notifications.map(n => `
+      <div class="nitem ${n.is_read?'':'unread'}" id="notif-${n.id}" onclick="markNotifRead(${n.id},this)">
+        <div class="nico" style="background:${colors[n.type]||'rgba(124,92,252,.1)'}">${icons[n.type]||'🔔'}</div>
+        <div class="notif-body"><div class="ntitle">${escHtml(n.title)}</div><div class="nbody">${escHtml(n.body||'')}</div><div class="ntime">${timeAgo(n.created_at)}</div></div>
+        ${!n.is_read ? '<div class="dot"></div>' : ''}
+      </div>
+    `).join('');
+  } catch(e) { list.innerHTML = `<div class="empty"><div class="ico">⚠️</div><h3>${e.message}</h3></div>`; }
+}
+
+async function markNotifRead(id, el) {
+  el.classList.remove('unread');
+  const dot = el.querySelector('.dot');
+  if (dot) dot.remove();
+  try { await NotifsAPI.read(id); } catch {}
+}
+
+async function readAllNotifs() {
+  try { await NotifsAPI.readAll(); loadNotifications(); toast('Все прочитаны'); } catch(e) { toast(e.message, 'er'); }
+}
+
+// PROFILE
+async function loadProfile() {
+  const c = document.getElementById('profileContent');
+  c.innerHTML = '<div class="loading"><div class="spin"></div></div>';
+  try {
+    const u = await UsersAPI.get(currentUser.uuid);
+    const initials = (u.first_name[0]+(u.last_name[0]||'')).toUpperCase();
+    const rating = u.stats?.avg_rating ? parseFloat(u.stats.avg_rating).toFixed(1) : '–';
+    const stars = u.stats?.avg_rating ? '★'.repeat(Math.round(u.stats.avg_rating)) : '';
+    c.innerHTML = `
+      <div class="pcov"></div>
+      <div style="padding:0 0 0;position:relative;z-index:1">
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:0 4px">
+          <div style="display:flex;gap:14px;align-items:flex-end">
+            <div class="avatar xl" style="border:4px solid var(--bg)">${initials}</div>
+            <div style="padding-bottom:8px">
+              <h2 style="font-size:22px">${escHtml(u.first_name)} ${escHtml(u.last_name)}</h2>
+              <div style="font-size:13px;color:var(--muted);margin-top:3px">${escHtml(u.specialization||'Фрилансер')}</div>
+              <div style="display:flex;gap:10px;margin-top:7px;flex-wrap:wrap;align-items:center">
+                ${u.is_verified ? '<span class="level-badge level-top">✓ Верифицирован</span>' : ''}
+                ${u.city ? `<span style="font-size:12px;color:var(--muted)">📍 ${escHtml(u.city)}</span>` : ''}
+              </div>
+            </div>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="sp('settings')">✏️ Редактировать</button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 300px;gap:24px;margin-top:20px">
+          <div>
+            <div class="tabs">
+              <div class="tab active" onclick="setProfileTab(this,'ptab-about')">О себе</div>
+              <div class="tab" onclick="setProfileTab(this,'ptab-portfolio')">Портфолио (${u.portfolio?.length||0})</div>
+              <div class="tab" onclick="setProfileTab(this,'ptab-reviews')">Отзывы (${u.stats?.review_count||0})</div>
+            </div>
+            <div id="ptab-about">
+              <p style="font-size:14px;line-height:1.8;color:var(--muted);margin-bottom:20px">${escHtml(u.bio||'Пользователь ещё не добавил информацию о себе.')}</p>
+              ${u.skills?.length ? `<h4 style="font-size:14px;font-weight:600;margin-bottom:12px">Навыки</h4><div class="tags">${u.skills.map(s=>`<span class="tag" style="padding:5px 12px">${escHtml(s.skill)}</span>`).join('')}</div>` : ''}
+            </div>
+            <div id="ptab-portfolio" style="display:none"><div class="pgrid" id="profPortGrid"></div></div>
+            <div id="ptab-reviews" style="display:none">
+              ${u.reviews?.length ? u.reviews.map(r => `<div class="ritem"><div class="rvr"><div class="avatar" style="width:32px;height:32px;font-size:11px">${(r.first_name[0]+r.last_name[0]).toUpperCase()}</div><div><div class="rnm">${escHtml(r.first_name)} ${escHtml(r.last_name)}</div><div class="rdt">${formatDate(r.created_at)}</div></div><div class="stars" style="margin-left:auto">${'★'.repeat(r.rating)}</div></div><div class="rtxt">${escHtml(r.comment||'')}</div></div>`).join('') : '<div class="empty"><div class="ico">⭐</div><h3>Нет отзывов</h3></div>'}
+            </div>
+          </div>
+          <div>
+            <div class="card" style="margin-bottom:14px">
+              <h4 style="font-size:14px;font-weight:600;margin-bottom:14px">Статистика</h4>
+              <div style="display:flex;flex-direction:column;gap:10px;font-size:13px">
+                <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Рейтинг</span><span class="stars">${stars} ${rating}</span></div>
+                <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Выполнено</span><span>${u.stats?.completed||0} проектов</span></div>
+                <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">На платформе</span><span>${timeAgo(u.created_at)}</span></div>
+              </div>
+            </div>
+            <div class="card">
+              <h4 style="font-size:14px;font-weight:600;margin-bottom:12px">Ставка</h4>
+              <div style="font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:var(--accent3)">${u.hourly_rate ? '₽'+u.hourly_rate.toLocaleString('ru')+'<span style="font-size:14px;color:var(--muted)">/час</span>' : 'По договорённости'}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    if (u.portfolio?.length) renderPortfolioGrid(u.portfolio, document.getElementById('profPortGrid'));
+  } catch(e) { c.innerHTML = `<div class="empty"><div class="ico">⚠️</div><h3>${e.message}</h3></div>`; }
+}
+
+function setProfileTab(el, id) {
+  document.querySelectorAll('#page-profile .tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  ['ptab-about','ptab-portfolio','ptab-reviews'].forEach(i => { const el2=document.getElementById(i); if(el2) el2.style.display='none'; });
+  const t = document.getElementById(id); if(t) t.style.display='block';
+}
+
+// SETTINGS
+async function loadSettings() {
+  const u = currentUser;
+  document.getElementById('s-first').value = u.first_name || '';
+  document.getElementById('s-last').value = u.last_name || '';
+  document.getElementById('s-spec').value = u.specialization || '';
+  document.getElementById('s-city').value = u.city || '';
+  document.getElementById('s-bio').value = u.bio || '';
+  document.getElementById('s-rate').value = u.hourly_rate || '';
+
+  // Загружаем навыки
+  const skillsEditor = document.getElementById('skillsEditor');
+  try {
+    const me = await UsersAPI.me();
+    const skills = me.skills || [];
+    skillsEditor.innerHTML = '';
+    skills.forEach(s => addSkillRow(s.skill, s.level));
+  } catch {}
+}
+
+function addSkillRow(skill='', level=70) {
+  const div = document.createElement('div');
+  div.style.cssText = 'display:flex;gap:8px;align-items:center;margin-bottom:8px';
+  div.innerHTML = `<input class="fi skill-name" placeholder="React, Figma..." value="${escHtml(skill)}" style="flex:1">
+    <input type="range" min="10" max="100" value="${level}" class="skill-level" style="width:80px">
+    <button class="btn btn-danger btn-sm" onclick="this.parentNode.remove()">✕</button>`;
+  document.getElementById('skillsEditor').appendChild(div);
+}
+
+async function saveSettings() {
+  const data = {
+    first_name: document.getElementById('s-first').value.trim(),
+    last_name: document.getElementById('s-last').value.trim(),
+    specialization: document.getElementById('s-spec').value.trim(),
+    city: document.getElementById('s-city').value.trim(),
+    bio: document.getElementById('s-bio').value.trim(),
+    hourly_rate: parseInt(document.getElementById('s-rate').value) || 0,
+  };
+  setBtnLoading('saveSettingsBtn', true);
+  try {
+    await UsersAPI.updateMe(data);
+
+    // Сохраняем навыки
+    const names = [...document.querySelectorAll('.skill-name')].map(i => i.value.trim()).filter(Boolean);
+    const levels = [...document.querySelectorAll('.skill-level')].map(i => parseInt(i.value));
+    const skills = names.map((skill, i) => ({ skill, level: levels[i] || 70 }));
+    await UsersAPI.updateSkills(skills);
+
+    currentUser = { ...currentUser, ...data };
+    User.set(currentUser);
+    toast('Настройки сохранены!');
+  } catch(e) { toast(e.message, 'er'); }
+  setBtnLoading('saveSettingsBtn', false);
+}
+
+// MY GIGS
+async function loadMyGigs() {
+  // TODO: API /gigs — пока показываем заглушку
+  document.getElementById('myGigsGrid').innerHTML = `<div class="empty" style="grid-column:1/-1"><div class="ico">🎯</div><h3>Услуги скоро появятся</h3><p>API услуг в разработке</p></div>`;
+}
+
+// ===== AUTH =====
+async function doLogin() {
+  const email = document.getElementById('li-email').value.trim();
+  const pass = document.getElementById('li-pass').value;
+  const err = document.getElementById('loginErr');
+  if (!email || !pass) { err.textContent = 'Заполните все поля'; err.style.display='block'; return; }
+  err.style.display = 'none';
+  setBtnLoading('loginBtn', true);
+  try {
+    const data = await AuthAPI.login(email, pass);
+    Token.set(data.accessToken, data.refreshToken);
+    currentUser = data.user;
+    User.set(currentUser);
+    closeM('loginM');
+    enterApp();
+    toast(`Добро пожаловать, ${currentUser.first_name}!`);
+  } catch(e) { err.textContent = e.message || 'Ошибка входа'; err.style.display='block'; }
+  setBtnLoading('loginBtn', false);
+}
+
+async function doRegister() {
+  const fn = document.getElementById('r-fn').value.trim();
+  const ln = document.getElementById('r-ln').value.trim();
+  const email = document.getElementById('r-email').value.trim();
+  const pass = document.getElementById('r-pass').value;
+  const role = document.getElementById('r-role').value;
+  const err = document.getElementById('regErr');
+  if (!fn || !ln || !email || !pass) { err.textContent = 'Заполните все поля'; err.style.display='block'; return; }
+  if (pass.length < 8) { err.textContent = 'Пароль минимум 8 символов'; err.style.display='block'; return; }
+  err.style.display = 'none';
+  setBtnLoading('regBtn', true);
+  try {
+    const data = await AuthAPI.register({ first_name: fn, last_name: ln, email, password: pass, role });
+    pendingUserId = data.userId;
+    closeM('regM');
+    document.getElementById('verifyEmailDisplay').textContent = email;
+    openM('verifyM');
+    toast('Код отправлен на почту!');
+  } catch(e) { err.textContent = e.message || 'Ошибка регистрации'; err.style.display='block'; }
+  setBtnLoading('regBtn', false);
+}
+
+async function doVerify() {
+  const inputs = document.querySelectorAll('#codeInputs input');
+  const code = [...inputs].map(i => i.value).join('');
+  const err = document.getElementById('verifyErr');
+  if (code.length < 6) { err.textContent = 'Введите все 6 цифр кода'; err.style.display='block'; return; }
+  err.style.display = 'none';
+  setBtnLoading('verifyBtn', true);
+  try {
+    const data = await AuthAPI.verifyEmail(pendingUserId, code);
+    Token.set(data.accessToken, data.refreshToken);
+    currentUser = data.user;
+    User.set(currentUser);
+    closeM('verifyM');
+    enterApp();
+    toast('🎉 Email подтверждён! Добро пожаловать!');
+  } catch(e) { err.textContent = e.message || 'Неверный код'; err.style.display='block'; }
+  setBtnLoading('verifyBtn', false);
+}
+
+async function resendCode() {
+  if (!pendingUserId) return;
+  try {
+    await AuthAPI.resendCode(pendingUserId);
+    toast('Новый код отправлен');
+    document.querySelectorAll('#codeInputs input').forEach(i => i.value = '');
+    document.querySelectorAll('#codeInputs input')[0].focus();
+  } catch(e) { toast(e.message, 'er'); }
+}
+
+async function logout() {
+  try { await AuthAPI.logout(); } catch {}
+  Token.clear();
+  currentUser = null;
+  document.getElementById('navGuest').style.display = 'flex';
+  document.getElementById('navUser').style.display = 'none';
+  document.getElementById('navLinks').style.display = 'none';
+  document.getElementById('sidebar').style.display = 'none';
+  showPage('landing');
+  toast('Вы вышли из аккаунта');
+}
+
+// ===== JOBS =====
+async function postJob() {
+  const title = document.getElementById('nj-title').value.trim();
+  const cat = document.getElementById('nj-cat').value;
+  const desc = document.getElementById('nj-desc').value.trim();
+  const bmin = parseInt(document.getElementById('nj-bmin').value)||null;
+  const bmax = parseInt(document.getElementById('nj-bmax').value)||null;
+  const dl = document.getElementById('nj-dl').value||null;
+  const tagsRaw = document.getElementById('nj-tags').value;
+  const tags = tagsRaw.split(',').map(t=>t.trim()).filter(Boolean);
+  const err = document.getElementById('newJobErr');
+
+  if (title.length < 10) { err.textContent = 'Заголовок минимум 10 символов'; err.style.display='block'; return; }
+  if (desc.length < 30) { err.textContent = 'Описание минимум 30 символов'; err.style.display='block'; return; }
+  err.style.display = 'none';
+  setBtnLoading('newJobBtn', true);
+  try {
+    await JobsAPI.create({ title, category: cat, description: desc, budget_min: bmin, budget_max: bmax, deadline: dl, tags });
+    closeM('newJobM');
+    toast('Заказ опубликован!');
+    if (currentPage === 'jobs') loadJobs();
+  } catch(e) { err.textContent = e.message; err.style.display='block'; }
+  setBtnLoading('newJobBtn', false);
+}
+
+function openProposal(uuid, title) {
+  activeJobUuid = uuid;
+  document.getElementById('propJobTitle').textContent = title;
+  document.getElementById('propErr').style.display = 'none';
+  openM('propM');
+}
+
+async function sendProposal() {
+  if (!activeJobUuid) return;
+  const letter = document.getElementById('pr-letter').value.trim();
+  const price = parseInt(document.getElementById('pr-price').value);
+  const days = parseInt(document.getElementById('pr-days').value);
+  const err = document.getElementById('propErr');
+  if (letter.length < 50) { err.textContent = 'Письмо минимум 50 символов'; err.style.display='block'; return; }
+  if (!price) { err.textContent = 'Укажите цену'; err.style.display='block'; return; }
+  if (!days) { err.textContent = 'Укажите срок'; err.style.display='block'; return; }
+  err.style.display = 'none';
+  setBtnLoading('propBtn', true);
+  try {
+    await JobsAPI.apply(activeJobUuid, { cover_letter: letter, price, delivery_days: days });
+    closeM('propM');
+    toast('Отклик отправлен! Заказчик получит уведомление.');
+    document.getElementById('pr-letter').value = '';
+    document.getElementById('pr-price').value = '';
+    document.getElementById('pr-days').value = '';
+  } catch(e) { err.textContent = e.message; err.style.display='block'; }
+  setBtnLoading('propBtn', false);
+}
+
+function openJob(uuid) {
+  // TODO: страница детального просмотра заказа
+  toast('Детальный просмотр заказа в разработке');
+}
+
+function viewProfile(uuid) {
+  // TODO: открытие профиля другого пользователя
+  toast('Просмотр профилей других пользователей в разработке');
+}
+
+// ===== CODE INPUT =====
+function codeInput(el, idx) {
+  el.value = el.value.replace(/\D/g, '');
+  if (el.value && idx < 5) {
+    document.querySelectorAll('#codeInputs input')[idx+1].focus();
+  }
+  // Автосабмит если все заполнено
+  const all = [...document.querySelectorAll('#codeInputs input')].map(i=>i.value).join('');
+  if (all.length === 6) setTimeout(doVerify, 100);
+}
+function codeBack(e, idx) {
+  if (e.key === 'Backspace' && !e.target.value && idx > 0) {
+    document.querySelectorAll('#codeInputs input')[idx-1].focus();
+  }
+}
+
+// ===== TABS =====
+function setTab(el, id) {
+  const parent = el.parentNode;
+  parent.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  const prefix = id.split('-').slice(0,2).join('-');
+  document.querySelectorAll(`[id^="${prefix}"]`).forEach(c => c.style.display='none');
+  const t = document.getElementById(id);
+  if (t) t.style.display = 'block';
+  if (id === 'otab-proposals' && !document.getElementById(id).querySelector('.card')) loadOrders();
+}
+
+// ===== MODALS =====
+function openM(id) { document.getElementById(id).classList.add('open'); }
+function closeM(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.overlay').forEach(m => m.addEventListener('click', e => { if(e.target===m) m.classList.remove('open'); }));
+
+// ===== TOAST =====
+let toastT;
+function toast(msg, type='ok') {
+  const t = document.getElementById('toast');
+  t.textContent = (type==='ok'?'✓ ':'⚠ ') + msg;
+  t.className = `toast show ${type}`;
+  clearTimeout(toastT);
+  toastT = setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ===== HELPERS =====
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function timeAgo(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr.replace(' ','T')+'Z');
+  const diff = (Date.now() - d) / 1000;
+  if (diff < 60) return 'только что';
+  if (diff < 3600) return Math.floor(diff/60) + ' мин назад';
+  if (diff < 86400) return Math.floor(diff/3600) + ' ч назад';
+  if (diff < 2592000) return Math.floor(diff/86400) + ' дн назад';
+  return d.toLocaleDateString('ru');
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  return new Date(dateStr.replace(' ','T')+'Z').toLocaleDateString('ru', {day:'numeric',month:'long',year:'numeric'});
+}
+
+function setBtnLoading(id, loading) {
+  const btn = document.getElementById(id);
+  if (!btn) return;
+  btn.disabled = loading;
+  if (loading) { btn._orig = btn.textContent; btn.textContent = 'Загрузка...'; }
+  else btn.textContent = btn._orig || btn.textContent;
+}
+
+// Topup options
+document.querySelectorAll('.topup-opt').forEach(el => {
+  el.addEventListener('click', function() {
+    document.querySelectorAll('.topup-opt').forEach(o => o.classList.remove('active-opt'));
+    this.classList.add('active-opt');
+    document.getElementById('tp-amt').value = this.dataset.v;
+  });
+});
+</script>
+</body>
+</html>
