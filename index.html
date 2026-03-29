@@ -463,20 +463,18 @@ select.fi{cursor:pointer;}
 <!-- WALLET -->
 <div id="page-wallet" class="page">
   <div class="ph fade"><div><h2>Кошелёк</h2></div></div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px">
-    <div class="wcrd fade">
-      <div class="wlbl">Доступный баланс</div>
-      <div class="wamt" id="wBalance">₽0</div>
-      <div style="font-size:12px;color:var(--muted);margin-top:6px" id="wEscrow">В эскроу: ₽0</div>
-      <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
-        <button class="btn btn-success btn-sm" onclick="openM('withdrawM')">↑ Вывести</button>
-        <button class="btn btn-ghost btn-sm" onclick="openM('topupM')">+ Пополнить</button>
-      </div>
+  <div class="wcrd fade" style="margin-bottom:16px">
+    <div class="wlbl">Доступный баланс (USD)</div>
+    <div class="wamt" id="wBalance">$0.00</div>
+    <div style="font-size:12px;color:var(--muted);margin-top:6px" id="wEscrow">В эскроу: $0</div>
+    <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
+      <button class="btn btn-primary btn-sm" onclick="openM('topupM')">+ Пополнить криптой</button>
+      <button class="btn btn-success btn-sm" onclick="openM('withdrawM')">↑ Вывести</button>
     </div>
-    <div style="display:flex;flex-direction:column;gap:12px">
-      <div class="scard fade"><div class="lbl">Всего заработано</div><div class="val" id="wEarned" style="color:var(--accent3)">₽0</div></div>
-      <div class="scard fade"><div class="lbl">Всего потрачено</div><div class="val" id="wSpent">₽0</div></div>
-    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
+    <div class="scard fade"><div class="lbl">Всего пополнено</div><div class="val" id="wEarned" style="color:var(--accent3)">$0</div></div>
+    <div class="scard fade"><div class="lbl">Всего выведено</div><div class="val" id="wSpent">$0</div></div>
   </div>
   <div class="fade">
     <div style="font-size:15px;font-weight:600;margin-bottom:14px">История транзакций</div>
@@ -714,6 +712,10 @@ let jobsCat = '';
 let jobsSearch = '';
 let activeJobUuid = null;
 let pendingUserId = null;
+let currentWalletBalance = 0;
+let selectedTopupCoin = 'USDT';
+let currentInvoiceId = null;
+let invoiceCheckInterval = null;
 
 // ===== INIT =====
 (async function init() {
@@ -1136,11 +1138,12 @@ async function deleteJob(uuid) {
 async function loadWallet() {
   try {
     const w = await WalletAPI.get();
-    document.getElementById('wBalance').textContent = '₽' + w.balance.toLocaleString('ru', {minimumFractionDigits:2});
-    document.getElementById('wEscrow').textContent = `В эскроу: ₽${w.escrow.toLocaleString('ru')}`;
-    document.getElementById('wEarned').textContent = '₽' + w.total_earned.toLocaleString('ru');
-    document.getElementById('wSpent').textContent = '₽' + w.total_spent.toLocaleString('ru');
-    document.getElementById('wdAvail').textContent = '₽' + w.balance.toLocaleString('ru');
+    document.getElementById('wBalance').textContent = '$' + parseFloat(w.balance).toFixed(2);
+    document.getElementById('wEscrow').textContent = `В эскроу: $${parseFloat(w.escrow).toFixed(2)}`;
+    document.getElementById('wEarned').textContent = '$' + parseFloat(w.total_earned).toFixed(2);
+    document.getElementById('wSpent').textContent = '$' + parseFloat(w.total_spent).toFixed(2);
+    document.getElementById('wdAvail').textContent = '$' + parseFloat(w.balance).toFixed(2);
+    currentWalletBalance = parseFloat(w.balance);
   } catch {}
 
   const txList = document.getElementById('txList');
@@ -1231,7 +1234,7 @@ async function loadProfile() {
           </div>
           <button class="btn btn-ghost btn-sm" onclick="sp('settings')">✏️ Редактировать</button>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 300px;gap:24px;margin-top:20px">
+        <div style="display:flex;flex-direction:column;gap:20px;margin-top:20px">
           <div>
             <div class="tabs">
               <div class="tab active" onclick="setProfileTab(this,'ptab-about')">О себе</div>
@@ -1247,23 +1250,27 @@ async function loadProfile() {
               ${u.reviews?.length ? u.reviews.map(r => `<div class="ritem"><div class="rvr"><div class="avatar" style="width:32px;height:32px;font-size:11px">${(r.first_name[0]+r.last_name[0]).toUpperCase()}</div><div><div class="rnm">${escHtml(r.first_name)} ${escHtml(r.last_name)}</div><div class="rdt">${formatDate(r.created_at)}</div></div><div class="stars" style="margin-left:auto">${'★'.repeat(r.rating)}</div></div><div class="rtxt">${escHtml(r.comment||'')}</div></div>`).join('') : '<div class="empty"><div class="ico">⭐</div><h3>Нет отзывов</h3></div>'}
             </div>
           </div>
-          <div>
-            <div class="card" style="margin-bottom:14px">
-              <h4 style="font-size:14px;font-weight:600;margin-bottom:14px">Статистика</h4>
-              <div style="display:flex;flex-direction:column;gap:10px;font-size:13px">
-                <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Рейтинг</span><span class="stars">${stars} ${rating}</span></div>
-                <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Выполнено</span><span>${u.stats?.completed||0} проектов</span></div>
-                <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">На платформе</span><span>${timeAgo(u.created_at)}</span></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="card" style="grid-column:1/-1;display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+              <div style="flex:1;min-width:120px">
+                <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Рейтинг</div>
+                <div class="stars" style="font-size:16px">${stars||'–'} ${rating}</div>
+              </div>
+              <div style="flex:1;min-width:100px">
+                <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Выполнено</div>
+                <div style="font-weight:600">${u.stats?.completed||0} проектов</div>
+              </div>
+              <div style="flex:1;min-width:100px">
+                <div style="font-size:11px;color:var(--muted);margin-bottom:4px">На платформе</div>
+                <div style="font-weight:600">${timeAgo(u.created_at)}</div>
+              </div>
+              <div style="flex:1;min-width:100px">
+                <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Ставка</div>
+                <div style="font-family:'Syne',sans-serif;font-weight:700;color:var(--accent3)">${u.hourly_rate ? '$'+u.hourly_rate+'/ч' : 'Договорная'}</div>
               </div>
             </div>
-            <div class="card">
-              <h4 style="font-size:14px;font-weight:600;margin-bottom:12px">Ставка</h4>
-              <div style="font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:var(--accent3)">${u.hourly_rate ? '₽'+u.hourly_rate.toLocaleString('ru')+'<span style="font-size:14px;color:var(--muted)">/час</span>' : 'По договорённости'}</div>
-            </div>
-            <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
-              <button class="btn btn-ghost btn-sm" style="width:100%;justify-content:center" onclick="sp('settings')">⚙️ Настройки</button>
-              <button class="btn btn-danger btn-sm" style="width:100%;justify-content:center" onclick="logout()">🚪 Выйти из аккаунта</button>
-            </div>
+            <button class="btn btn-ghost btn-sm" style="justify-content:center" onclick="sp('settings')">⚙️ Настройки</button>
+            <button class="btn btn-danger btn-sm" style="justify-content:center" onclick="logout()">🚪 Выйти</button>
           </div>
         </div>
       </div>
@@ -1570,82 +1577,74 @@ function setBtnLoading(id, loading) {
   else btn.textContent = btn._orig || btn.textContent;
 }
 
-// ===== CRYPTO WALLET =====
-// Адреса для пополнения — замени на свои реальные адреса!
-const DEPOSIT_ADDRESSES = {
-  'USDT': {
-    'TRC20': 'ЗАМЕНИ_НА_СВОЙ_USDT_TRC20_АДРЕС',
-    'ERC20': 'ЗАМЕНИ_НА_СВОЙ_USDT_ERC20_АДРЕС',
-    'BEP20': 'ЗАМЕНИ_НА_СВОЙ_USDT_BEP20_АДРЕС',
-  },
-  'TON':  { 'TON': 'ЗАМЕНИ_НА_СВОЙ_TON_АДРЕС' },
-  'BTC':  { 'BTC': 'ЗАМЕНИ_НА_СВОЙ_BTC_АДРЕС' },
-  'ETH':  { 'ERC20': 'ЗАМЕНИ_НА_СВОЙ_ETH_АДРЕС' },
-  'BNB':  { 'BEP20': 'ЗАМЕНИ_НА_СВОЙ_BNB_АДРЕС' },
-  'SOL':  { 'SOL': 'ЗАМЕНИ_НА_СВОЙ_SOL_АДРЕС' },
-  'TRX':  { 'TRC20': 'ЗАМЕНИ_НА_СВОЙ_TRX_АДРЕС' },
-  'NOT':  { 'TON': 'ЗАМЕНИ_НА_СВОЙ_TON_АДРЕС' },
-  'USDC': { 'ERC20': 'ЗАМЕНИ_НА_СВОЙ_USDC_АДРЕС', 'BEP20': 'ЗАМЕНИ_НА_СВОЙ_USDC_BEP20_АДРЕС' },
+// ===== CRYPTO WALLET (CryptoBot API) =====
+const COINS = {
+  USDT:{name:'Tether',emoji:'💵'},
+  TON:{name:'Toncoin',emoji:'💎'},
+  LTC:{name:'Litecoin',emoji:'🪙'},
+  BNB:{name:'BNB',emoji:'🟡'},
+  BTC:{name:'Bitcoin',emoji:'₿'},
+  TRX:{name:'TRON',emoji:'🔴'},
 };
-
-const COIN_NETWORKS = {
-  'USDT': ['TRC20','ERC20','BEP20'],
-  'TON':  ['TON'],
-  'BTC':  ['BTC'],
-  'ETH':  ['ERC20'],
-  'BNB':  ['BEP20'],
-  'SOL':  ['SOL'],
-  'TRX':  ['TRC20'],
-  'NOT':  ['TON'],
-  'USDC': ['ERC20','BEP20'],
-};
-
-const NETWORK_LABELS = {
-  'TRC20': 'TRC20 (TRON)',
-  'ERC20': 'ERC20 (Ethereum)',
-  'BEP20': 'BEP20 (BSC)',
-  'TON':   'TON Network',
-  'BTC':   'Bitcoin',
-  'SOL':   'Solana',
-};
-
-let selectedCoin = 'USDT';
 
 function selectCoin(el, coin) {
-  selectedCoin = coin;
+  selectedTopupCoin = coin;
   document.querySelectorAll('.crypto-opt').forEach(o => o.classList.remove('active-crypto'));
   el.classList.add('active-crypto');
-  
-  // Обновляем доступные сети
-  const networks = COIN_NETWORKS[coin] || ['TRC20'];
-  const netSel = document.getElementById('tp-network');
-  netSel.innerHTML = networks.map(n => `<option value="${n}">${NETWORK_LABELS[n]||n}</option>`).join('');
-  
-  // Скрываем выбор сети если одна
-  document.getElementById('networkRow').style.display = networks.length > 1 ? 'block' : 'none';
-  
-  updateDepositAddress();
 }
 
-function updateDepositAddress() {
-  const network = document.getElementById('tp-network').value;
-  const addrs = DEPOSIT_ADDRESSES[selectedCoin] || {};
-  const addr = addrs[network] || addrs[Object.keys(addrs)[0]] || '—';
-  document.getElementById('depositAddr').textContent = addr;
-  document.getElementById('coinNetLabel').textContent = selectedCoin + ' ' + (NETWORK_LABELS[network]||network);
+async function createInvoice() {
+  const amountInput = document.getElementById('tp-amount');
+  const amount = parseFloat(amountInput?.value || 0);
+  if (!amount || amount < 1) { toast('Минимум $1', 'er'); return; }
+
+  const btn = document.getElementById('createInvoiceBtn');
+  setBtnLoading('createInvoiceBtn', true);
+  try {
+    const data = await apiFetch('/crypto/create-invoice', {
+      method: 'POST',
+      body: JSON.stringify({ asset: selectedTopupCoin, amount_usd: amount })
+    });
+
+    currentInvoiceId = data.invoice_id;
+
+    // Показываем инвойс
+    document.getElementById('invoiceBlock').style.display = 'block';
+    document.getElementById('invoiceLink').href = data.pay_url;
+    document.getElementById('invoiceLink').textContent = `Оплатить ${data.amount} ${data.asset} через CryptoBot`;
+    document.getElementById('invoiceAmount').textContent = `$${amount} = ${data.amount} ${data.asset}`;
+
+    // Начинаем проверку каждые 5 секунд
+    clearInterval(invoiceCheckInterval);
+    invoiceCheckInterval = setInterval(() => checkInvoice(data.invoice_id), 5000);
+    toast('Инвойс создан! Оплати через CryptoBot');
+  } catch(e) {
+    toast(e.message || 'Ошибка создания платежа', 'er');
+  }
+  setBtnLoading('createInvoiceBtn', false);
 }
 
-function copyAddr() {
-  const addr = document.getElementById('depositAddr').textContent;
-  if (addr === '—' || addr.includes('ЗАМЕНИ')) { toast('Сначала настрой адреса кошельков', 'er'); return; }
-  navigator.clipboard.writeText(addr).then(() => toast('Адрес скопирован!')).catch(() => toast('Не удалось скопировать', 'er'));
-}
-
-function updateWithdrawNetwork() {
-  const coin = document.getElementById('wd-coin').value;
-  const networks = COIN_NETWORKS[coin] || ['TRC20'];
-  const netSel = document.getElementById('wd-network');
-  netSel.innerHTML = networks.map(n => `<option value="${n}">${NETWORK_LABELS[n]||n}</option>`).join('');
+async function checkInvoice(invoiceId) {
+  try {
+    const data = await apiFetch('/crypto/check-invoice', {
+      method: 'POST',
+      body: JSON.stringify({ invoice_id: invoiceId })
+    });
+    if (data.status === 'paid') {
+      clearInterval(invoiceCheckInterval);
+      closeM('topupM');
+      toast(`🎉 Баланс пополнен на $${data.amount_usd}!`);
+      loadWallet();
+      updateBadges();
+      // Сброс формы
+      currentInvoiceId = null;
+      document.getElementById('invoiceBlock').style.display = 'none';
+    } else if (data.status === 'expired') {
+      clearInterval(invoiceCheckInterval);
+      toast('Инвойс истёк. Создай новый.', 'er');
+      document.getElementById('invoiceBlock').style.display = 'none';
+    }
+  } catch {}
 }
 
 async function doWithdraw() {
@@ -1653,28 +1652,40 @@ async function doWithdraw() {
   const network = document.getElementById('wd-network').value;
   const address = document.getElementById('wd-address').value.trim();
   const amount = parseFloat(document.getElementById('wd-amt').value);
-  
+
   if (!address) { toast('Введи адрес кошелька', 'er'); return; }
-  if (!amount || amount < 10) { toast('Минимальная сумма $10', 'er'); return; }
-  if (!confirm(`Вывести $${amount} ${coin} (${network}) на адрес:\n${address}\n\nПроверь адрес — операция необратима!`)) return;
-  
+  if (!amount || amount < 5) { toast('Минимальная сумма $5', 'er'); return; }
+  if (amount > currentWalletBalance) { toast('Недостаточно средств', 'er'); return; }
+  if (!confirm(`Вывести $${amount} ${coin} (${network}) на:\n${address}\n\nОперация необратима!`)) return;
+
   setBtnLoading('wdBtn', true);
   try {
-    await WalletAPI.withdraw(amount, `${coin} ${network}: ${address}`);
+    await apiFetch('/crypto/withdraw', {
+      method: 'POST',
+      body: JSON.stringify({ asset: coin, network, address, amount_usd: amount })
+    });
     closeM('withdrawM');
-    toast(`Заявка на вывод ${coin} отправлена! Обработка до 24 часов.`);
+    toast('Заявка на вывод принята! Обработка до 24 часов.');
     loadWallet();
   } catch(e) { toast(e.message, 'er'); }
   setBtnLoading('wdBtn', false);
 }
 
-// Инит крипто при открытии модала
-document.getElementById('topupM').addEventListener('click', function(e) {
-  if (e.target === this) return;
-});
+function updateWithdrawNetwork() {
+  const coin = document.getElementById('wd-coin').value;
+  const networks = {
+    USDT:['TRC20 (TRON)','ERC20 (Ethereum)','BEP20 (BSC)'],
+    TON:['TON Network'],
+    LTC:['Litecoin'],
+    BNB:['BEP20 (BSC)'],
+    BTC:['Bitcoin'],
+    TRX:['TRC20 (TRON)'],
+  };
+  const netSel = document.getElementById('wd-network');
+  netSel.innerHTML = (networks[coin]||['—']).map(n=>`<option>${n}</option>`).join('');
+}
 
-// Обновить адрес при открытии
-const origOpenM = openM;
+
 </script>
 </body>
 </html>

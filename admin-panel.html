@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ArtWin Admin</title>
+<style>
+:root{--bg:#0a0a0f;--s:#12121a;--s2:#1a1a26;--b:#2a2a3d;--a:#7c5cfc;--a2:#fc5cf5;--a3:#5cfcb4;--t:#f0f0ff;--m:#8888aa;--gold:#ffd166;--red:#ff4d6d;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--t);font-family:'Segoe UI',sans-serif;min-height:100vh;}
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;}
+.login-box{background:var(--s);border:1px solid var(--b);border-radius:20px;padding:40px;width:360px;}
+.login-box h2{font-size:22px;margin-bottom:6px;}
+.login-box p{font-size:13px;color:var(--m);margin-bottom:28px;}
+.fi{width:100%;padding:10px 14px;background:var(--s2);border:1px solid var(--b);border-radius:9px;color:var(--t);font-size:14px;outline:none;margin-bottom:14px;}
+.fi:focus{border-color:var(--a);}
+.btn{padding:10px 20px;border-radius:9px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:.2s;}
+.btn-p{background:linear-gradient(135deg,var(--a),var(--a2));color:#fff;width:100%;}
+.btn-p:hover{opacity:.9;}
+.btn-g{background:transparent;border:1px solid var(--b);color:var(--t);}
+.btn-g:hover{background:var(--s2);}
+.btn-ok{background:rgba(92,252,180,.15);color:var(--a3);border:1px solid rgba(92,252,180,.3);}
+.btn-ok:hover{background:rgba(92,252,180,.25);}
+.btn-er{background:rgba(255,77,109,.15);color:var(--red);border:1px solid rgba(255,77,109,.3);}
+.btn-er:hover{background:rgba(255,77,109,.25);}
+.err{background:rgba(255,77,109,.1);border:1px solid rgba(255,77,109,.25);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--red);margin-bottom:14px;display:none;}
+/* ADMIN LAYOUT */
+.admin{display:none;}
+.topbar{background:var(--s);border-bottom:1px solid var(--b);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:fixed;top:0;left:0;right:0;z-index:10;}
+.topbar .logo{font-size:18px;font-weight:700;background:linear-gradient(135deg,var(--a),var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.topbar .badge{background:rgba(255,77,109,.2);color:var(--red);padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600;}
+.sidebar{width:200px;background:var(--s);border-right:1px solid var(--b);position:fixed;top:56px;bottom:0;left:0;padding:16px 8px;display:flex;flex-direction:column;gap:3px;}
+.sitem{padding:9px 12px;border-radius:8px;cursor:pointer;color:var(--m);font-size:13px;display:flex;align-items:center;gap:8px;transition:.15s;}
+.sitem:hover{background:var(--s2);color:var(--t);}
+.sitem.active{background:rgba(124,92,252,.15);color:var(--a);}
+.main{margin-left:200px;padding:80px 24px 24px;}
+.page{display:none;}
+.page.active{display:block;}
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-bottom:24px;}
+.sc{background:var(--s);border:1px solid var(--b);border-radius:12px;padding:18px;}
+.sc .lbl{font-size:11px;color:var(--m);margin-bottom:6px;}
+.sc .val{font-size:26px;font-weight:700;}
+.sc .sub{font-size:11px;color:var(--m);margin-top:3px;}
+/* TABLE */
+.tbl-wrap{background:var(--s);border:1px solid var(--b);border-radius:14px;overflow:hidden;}
+.tbl-hdr{padding:16px 20px;border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;}
+.tbl-hdr h3{font-size:15px;font-weight:600;}
+table{width:100%;border-collapse:collapse;}
+th{padding:10px 16px;text-align:left;font-size:11px;color:var(--m);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--b);}
+td{padding:12px 16px;font-size:13px;border-bottom:1px solid rgba(255,255,255,.04);}
+tr:last-child td{border:none;}
+tr:hover td{background:rgba(255,255,255,.02);}
+.badge{padding:3px 8px;border-radius:5px;font-size:11px;font-weight:600;}
+.badge-ok{background:rgba(92,252,180,.15);color:var(--a3);}
+.badge-warn{background:rgba(255,209,102,.15);color:var(--gold);}
+.badge-er{background:rgba(255,77,109,.15);color:var(--red);}
+.badge-a{background:rgba(124,92,252,.15);color:var(--a);}
+/* SEARCH */
+.search{padding:8px 14px;background:var(--s2);border:1px solid var(--b);border-radius:8px;color:var(--t);font-size:13px;outline:none;width:240px;}
+.search:focus{border-color:var(--a);}
+/* PH */
+.ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.ph h2{font-size:20px;font-weight:700;}
+/* LOADING */
+.spin{display:inline-block;width:24px;height:24px;border:3px solid var(--b);border-top-color:var(--a);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading{padding:40px;text-align:center;color:var(--m);}
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;z-index:999;background:var(--s);border:1px solid var(--b);border-radius:12px;padding:12px 18px;font-size:13px;transform:translateY(60px);opacity:0;transition:.3s;box-shadow:0 8px 24px rgba(0,0,0,.4);}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.ok{border-color:rgba(92,252,180,.3);}
+.toast.er{border-color:rgba(255,77,109,.3);}
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:.2s;}
+.overlay.open{opacity:1;pointer-events:all;}
+.modal{background:var(--s);border:1px solid var(--b);border-radius:16px;padding:28px;max-width:480px;width:90%;}
+.mhdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.mhdr h3{font-size:17px;font-weight:700;}
+.mclose{background:var(--s2);border:none;color:var(--m);width:28px;height:28px;border-radius:7px;cursor:pointer;font-size:16px;}
+.fg{margin-bottom:16px;}
+.fl{display:block;font-size:12px;color:var(--m);margin-bottom:6px;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="loginWrap">
+  <div class="login-box">
+    <h2>🔐 ArtWin Admin</h2>
+    <p>Введи пароль администратора</p>
+    <div id="loginErr" class="err">Неверный пароль</div>
+    <input class="fi" type="password" id="adminPass" placeholder="Пароль" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="btn btn-p" onclick="doLogin()">Войти</button>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div class="admin" id="adminPanel">
+  <div class="topbar">
+    <div class="logo">ArtWin Admin</div>
+    <div style="display:flex;gap:12px;align-items:center">
+      <span class="badge" id="pendingBadge" style="display:none">⚠ Ожидают вывода</span>
+      <button class="btn btn-g" style="font-size:12px" onclick="doLogout()">Выйти</button>
+    </div>
+  </div>
+  <div class="sidebar">
+    <div class="sitem active" onclick="sp('stats',this)">📊 Статистика</div>
+    <div class="sitem" onclick="sp('users',this)">👥 Пользователи</div>
+    <div class="sitem" onclick="sp('withdrawals',this)">💸 Выводы</div>
+    <div class="sitem" onclick="sp('jobs',this)">💼 Заказы</div>
+    <div class="sitem" onclick="sp('transactions',this)">📋 Транзакции</div>
+  </div>
+  <div class="main">
+
+    <!-- STATS -->
+    <div id="page-stats" class="page active">
+      <div class="ph"><h2>📊 Статистика</h2><button class="btn btn-g" style="font-size:12px" onclick="loadStats()">↻ Обновить</button></div>
+      <div class="stats-grid" id="statsGrid"><div class="loading"><div class="spin"></div></div></div>
+    </div>
+
+    <!-- USERS -->
+    <div id="page-users" class="page">
+      <div class="ph">
+        <h2>👥 Пользователи</h2>
+        <input class="search" placeholder="Поиск по email, имени..." id="userSearch" oninput="searchUsers(this.value)">
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>Имя</th><th>Email</th><th>Роль</th><th>Баланс</th><th>Статус</th><th>Регистрация</th><th>Действия</th></tr></thead>
+          <tbody id="usersTable"><tr><td colspan="8" class="loading"><div class="spin"></div></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- WITHDRAWALS -->
+    <div id="page-withdrawals" class="page">
+      <div class="ph">
+        <h2>💸 Заявки на вывод</h2>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-g" style="font-size:12px" onclick="loadWithdrawals('pending')" id="wTab-pending">Ожидающие</button>
+          <button class="btn btn-g" style="font-size:12px" onclick="loadWithdrawals('completed')" id="wTab-completed">Выполненные</button>
+          <button class="btn btn-g" style="font-size:12px" onclick="loadWithdrawals('rejected')" id="wTab-rejected">Отклонённые</button>
+        </div>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>Пользователь</th><th>Монета</th><th>Сеть</th><th>Адрес</th><th>Сумма</th><th>Дата</th><th>Действия</th></tr></thead>
+          <tbody id="withdrawalsTable"><tr><td colspan="8" class="loading"><div class="spin"></div></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- JOBS -->
+    <div id="page-jobs" class="page">
+      <div class="ph"><h2>💼 Заказы</h2></div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>Заголовок</th><th>Заказчик</th><th>Категория</th><th>Бюджет</th><th>Откликов</th><th>Статус</th><th>Дата</th><th>Действия</th></tr></thead>
+          <tbody id="jobsTable"><tr><td colspan="9" class="loading"><div class="spin"></div></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TRANSACTIONS -->
+    <div id="page-transactions" class="page">
+      <div class="ph"><h2>📋 Транзакции</h2></div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>Пользователь</th><th>Тип</th><th>Сумма</th><th>Описание</th><th>Дата</th></tr></thead>
+          <tbody id="txTable"><tr><td colspan="6" class="loading"><div class="spin"></div></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ADJUST BALANCE MODAL -->
+<div class="overlay" id="adjustM">
+  <div class="modal">
+    <div class="mhdr"><h3>Корректировка баланса</h3><button class="mclose" onclick="closeM('adjustM')">✕</button></div>
+    <p style="font-size:13px;color:var(--m);margin-bottom:16px" id="adjustUserInfo"></p>
+    <div class="fg"><label class="fl">Сумма в USD (отрицательная для списания)</label><input class="fi" type="number" id="adjustAmt" placeholder="10.00 или -5.00"></div>
+    <div class="fg"><label class="fl">Причина</label><input class="fi" id="adjustReason" placeholder="Бонус / Штраф / Ручная корректировка"></div>
+    <button class="btn btn-p" onclick="doAdjust()">Применить</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'https://api.artwin.live/api/admin';
+let adminToken = localStorage.getItem('artwin_admin_token');
+let adjustUserId = null;
+
+// Автовход если токен есть
+if (adminToken) tryAutoLogin();
+
+async function tryAutoLogin() {
+  try {
+    await apiFetch('/stats');
+    showAdmin();
+  } catch { adminToken = null; localStorage.removeItem('artwin_admin_token'); }
+}
+
+async function doLogin() {
+  const pass = document.getElementById('adminPass').value;
+  const err = document.getElementById('loginErr');
+  err.style.display = 'none';
+  try {
+    const data = await fetch('https://api.artwin.live/api/admin/login', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ password: pass })
+    }).then(r => r.json());
+    if (!data.token) throw new Error('no token');
+    adminToken = data.token;
+    localStorage.setItem('artwin_admin_token', adminToken);
+    showAdmin();
+  } catch { err.style.display = 'block'; }
+}
+
+function doLogout() {
+  adminToken = null;
+  localStorage.removeItem('artwin_admin_token');
+  document.getElementById('adminPanel').style.display = 'none';
+  document.getElementById('loginWrap').style.display = 'flex';
+}
+
+function showAdmin() {
+  document.getElementById('loginWrap').style.display = 'none';
+  document.getElementById('adminPanel').style.display = 'block';
+  loadStats();
+  loadWithdrawals('pending');
+}
+
+async function apiFetch(path, options = {}) {
+  const res = await fetch(API + path, {
+    ...options,
+    headers: { 'Content-Type':'application/json', 'x-admin-token': adminToken, ...options.headers }
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Ошибка');
+  return data;
+}
+
+// NAV
+function sp(name, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.querySelectorAll('.sitem').forEach(i => i.classList.remove('active'));
+  if (el) el.classList.add('active');
+  if (name === 'users') loadUsers();
+  if (name === 'jobs') loadJobs();
+  if (name === 'transactions') loadTransactions();
+  if (name === 'withdrawals') loadWithdrawals('pending');
+}
+
+// STATS
+async function loadStats() {
+  document.getElementById('statsGrid').innerHTML = '<div class="loading"><div class="spin"></div></div>';
+  try {
+    const s = await apiFetch('/stats');
+    if (s.pending_withdrawals > 0) {
+      document.getElementById('pendingBadge').style.display = 'inline';
+      document.getElementById('pendingBadge').textContent = `⚠ ${s.pending_withdrawals} вывод${s.pending_withdrawals>1?'а':''}`;
+    }
+    document.getElementById('statsGrid').innerHTML = `
+      <div class="sc"><div class="lbl">Всего пользователей</div><div class="val">${s.users}</div><div class="sub">+${s.today_users} сегодня</div></div>
+      <div class="sc"><div class="lbl">Верифицировано</div><div class="val" style="color:var(--a3)">${s.verified_users}</div></div>
+      <div class="sc"><div class="lbl">Заказов</div><div class="val">${s.jobs}</div><div class="sub">${s.open_jobs} открытых · +${s.today_jobs} сегодня</div></div>
+      <div class="sc"><div class="lbl">Пополнено (всего)</div><div class="val" style="color:var(--a3)">$${parseFloat(s.total_deposited_usd).toLocaleString()}</div></div>
+      <div class="sc"><div class="lbl">Выведено (всего)</div><div class="val">$${parseFloat(s.total_withdrawn_usd).toLocaleString()}</div></div>
+      <div class="sc"><div class="lbl">Ожидают вывода</div><div class="val" style="color:var(--gold)">${s.pending_withdrawals}</div><div class="sub">$${parseFloat(s.pending_withdrawals_usd||0).toFixed(2)}</div></div>
+    `;
+  } catch(e) { document.getElementById('statsGrid').innerHTML = `<div style="color:var(--red)">${e.message}</div>`; }
+}
+
+// USERS
+let userSearchTimeout;
+function searchUsers(v) {
+  clearTimeout(userSearchTimeout);
+  userSearchTimeout = setTimeout(() => loadUsers(v), 400);
+}
+
+async function loadUsers(search = '') {
+  const tbody = document.getElementById('usersTable');
+  tbody.innerHTML = '<tr><td colspan="8" class="loading"><div class="spin"></div></td></tr>';
+  try {
+    const params = search ? `?search=${encodeURIComponent(search)}` : '';
+    const { users } = await apiFetch('/users' + params);
+    tbody.innerHTML = users.map(u => `
+      <tr>
+        <td style="color:var(--m)">#${u.id}</td>
+        <td>${esc(u.first_name)} ${esc(u.last_name)}</td>
+        <td style="font-size:12px">${esc(u.email)}</td>
+        <td><span class="badge badge-a">${u.role}</span></td>
+        <td style="color:var(--a3);font-weight:600">$${parseFloat(u.balance||0).toFixed(2)}</td>
+        <td><span class="badge ${u.is_active?'badge-ok':'badge-er'}">${u.is_active?'Активен':'Заблокирован'}</span></td>
+        <td style="font-size:11px;color:var(--m)">${timeAgo(u.created_at)}</td>
+        <td>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-g" style="font-size:11px;padding:4px 10px" onclick="openAdjust(${u.id},'${esc(u.first_name)} ${esc(u.last_name)}')">💰</button>
+            <button class="btn ${u.is_active?'btn-er':'btn-ok'}" style="font-size:11px;padding:4px 10px" onclick="banUser(${u.id},this)">${u.is_active?'🚫':'✅'}</button>
+          </div>
+        </td>
+      </tr>
+    `).join('') || '<tr><td colspan="8" style="text-align:center;color:var(--m);padding:32px">Нет пользователей</td></tr>';
+  } catch(e) { tbody.innerHTML = `<tr><td colspan="8" style="color:var(--red)">${e.message}</td></tr>`; }
+}
+
+async function banUser(id, btn) {
+  try {
+    const data = await apiFetch(`/users/${id}/ban`, { method: 'PATCH' });
+    toast(data.is_active ? 'Пользователь разблокирован' : 'Пользователь заблокирован');
+    loadUsers();
+  } catch(e) { toast(e.message, 'er'); }
+}
+
+function openAdjust(id, name) {
+  adjustUserId = id;
+  document.getElementById('adjustUserInfo').textContent = `Пользователь: ${name} (#${id})`;
+  document.getElementById('adjustAmt').value = '';
+  document.getElementById('adjustReason').value = '';
+  openM('adjustM');
+}
+
+async function doAdjust() {
+  const amount = parseFloat(document.getElementById('adjustAmt').value);
+  const reason = document.getElementById('adjustReason').value.trim();
+  if (!amount) { toast('Введи сумму', 'er'); return; }
+  try {
+    await apiFetch(`/users/${adjustUserId}/adjust-balance`, { method: 'POST', body: JSON.stringify({ amount_usd: amount, reason }) });
+    closeM('adjustM');
+    toast(`Баланс скорректирован на $${amount}`);
+    loadUsers();
+  } catch(e) { toast(e.message, 'er'); }
+}
+
+// WITHDRAWALS
+async function loadWithdrawals(status = 'pending') {
+  ['pending','completed','rejected'].forEach(s => {
+    const btn = document.getElementById('wTab-'+s);
+    if (btn) btn.style.background = s === status ? 'rgba(124,92,252,.2)' : '';
+  });
+  const tbody = document.getElementById('withdrawalsTable');
+  tbody.innerHTML = '<tr><td colspan="8" class="loading"><div class="spin"></div></td></tr>';
+  try {
+    const data = await apiFetch('/withdrawals?status=' + status);
+    tbody.innerHTML = data.map(w => `
+      <tr>
+        <td style="color:var(--m)">#${w.id}</td>
+        <td><div style="font-size:13px">${esc(w.first_name)} ${esc(w.last_name)}</div><div style="font-size:11px;color:var(--m)">${esc(w.email)}</div></td>
+        <td><b>${esc(w.asset)}</b></td>
+        <td style="font-size:12px;color:var(--m)">${esc(w.network||'—')}</td>
+        <td style="font-size:11px;font-family:monospace;max-width:140px;overflow:hidden;text-overflow:ellipsis" title="${esc(w.address)}">${esc(w.address)}</td>
+        <td style="font-weight:700;color:var(--gold)">$${parseFloat(w.amount_usd).toFixed(2)}</td>
+        <td style="font-size:11px;color:var(--m)">${timeAgo(w.created_at)}</td>
+        <td>
+          ${status === 'pending' ? `
+            <div style="display:flex;gap:6px">
+              <button class="btn btn-ok" style="font-size:11px;padding:5px 10px" onclick="approveWithdraw('${w.uuid}')">✓ Выплатил</button>
+              <button class="btn btn-er" style="font-size:11px;padding:5px 10px" onclick="rejectWithdraw('${w.uuid}')">✗ Отклонить</button>
+            </div>
+          ` : `<span class="badge ${status==='completed'?'badge-ok':'badge-er'}">${status==='completed'?'Выполнен':'Отклонён'}</span>`}
+        </td>
+      </tr>
+    `).join('') || `<tr><td colspan="8" style="text-align:center;color:var(--m);padding:32px">Нет заявок</td></tr>`;
+  } catch(e) { tbody.innerHTML = `<tr><td colspan="8" style="color:var(--red)">${e.message}</td></tr>`; }
+}
+
+async function approveWithdraw(uuid) {
+  if (!confirm('Подтвердить выплату? Убедись что средства отправлены!')) return;
+  try {
+    await apiFetch(`/withdrawals/${uuid}/approve`, { method: 'PATCH' });
+    toast('Выплата подтверждена, пользователь получил уведомление');
+    loadWithdrawals('pending');
+    loadStats();
+  } catch(e) { toast(e.message, 'er'); }
+}
+
+async function rejectWithdraw(uuid) {
+  if (!confirm('Отклонить заявку? Средства вернутся на баланс пользователя.')) return;
+  try {
+    await apiFetch(`/withdrawals/${uuid}/reject`, { method: 'PATCH' });
+    toast('Заявка отклонена, средства возвращены');
+    loadWithdrawals('pending');
+  } catch(e) { toast(e.message, 'er'); }
+}
+
+// JOBS
+async function loadJobs() {
+  const tbody = document.getElementById('jobsTable');
+  tbody.innerHTML = '<tr><td colspan="9" class="loading"><div class="spin"></div></td></tr>';
+  try {
+    const jobs = await apiFetch('/jobs');
+    const catNames = {design:'Дизайн',dev:'Разработка',writing:'Текст',video:'Видео',marketing:'Маркетинг',music:'Музыка',photo:'Фото','3d':'3D',ai:'ИИ',smm:'SMM'};
+    const statusBadge = {open:'badge-ok',in_progress:'badge-a',completed:'badge-warn',cancelled:'badge-er'};
+    tbody.innerHTML = jobs.map(j => `
+      <tr>
+        <td style="color:var(--m)">#${j.id}</td>
+        <td style="max-width:200px"><div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(j.title)}</div></td>
+        <td style="font-size:12px">${esc(j.first_name)} ${esc(j.last_name)}</td>
+        <td><span class="badge badge-a">${catNames[j.category]||j.category}</span></td>
+        <td>${j.budget_min?'$'+j.budget_min:'—'} ${j.budget_max?'– $'+j.budget_max:''}</td>
+        <td style="text-align:center">${j.proposals_count}</td>
+        <td><span class="badge ${statusBadge[j.status]||'badge-warn'}">${j.status}</span></td>
+        <td style="font-size:11px;color:var(--m)">${timeAgo(j.created_at)}</td>
+        <td><button class="btn btn-er" style="font-size:11px;padding:4px 10px" onclick="deleteJob('${j.uuid}')">🗑️</button></td>
+      </tr>
+    `).join('') || '<tr><td colspan="9" style="text-align:center;color:var(--m);padding:32px">Нет заказов</td></tr>';
+  } catch(e) { tbody.innerHTML = `<tr><td colspan="9" style="color:var(--red)">${e.message}</td></tr>`; }
+}
+
+async function deleteJob(uuid) {
+  if (!confirm('Скрыть заказ?')) return;
+  try { await apiFetch('/jobs/'+uuid, { method: 'DELETE' }); toast('Заказ скрыт'); loadJobs(); }
+  catch(e) { toast(e.message, 'er'); }
+}
+
+// TRANSACTIONS
+async function loadTransactions() {
+  const tbody = document.getElementById('txTable');
+  tbody.innerHTML = '<tr><td colspan="6" class="loading"><div class="spin"></div></td></tr>';
+  try {
+    const txs = await apiFetch('/transactions');
+    const typeEmoji = {deposit:'💰',withdrawal:'↑',escrow_lock:'🔒',escrow_release:'🔓',payment:'💸',refund:'↩️'};
+    tbody.innerHTML = txs.map(t => `
+      <tr>
+        <td style="color:var(--m)">#${t.id}</td>
+        <td style="font-size:12px">${esc(t.first_name)} ${esc(t.last_name)}<br><span style="color:var(--m);font-size:11px">${esc(t.email)}</span></td>
+        <td>${typeEmoji[t.type]||'💳'} ${t.type}</td>
+        <td style="font-weight:700;color:${t.direction==='in'?'var(--a3)':'var(--red)'}">${t.direction==='in'?'+':'-'}$${parseFloat(t.amount).toFixed(2)}</td>
+        <td style="font-size:12px;color:var(--m)">${esc(t.description||'—')}</td>
+        <td style="font-size:11px;color:var(--m)">${timeAgo(t.created_at)}</td>
+      </tr>
+    `).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--m);padding:32px">Нет транзакций</td></tr>';
+  } catch(e) { tbody.innerHTML = `<tr><td colspan="6" style="color:var(--red)">${e.message}</td></tr>`; }
+}
+
+// HELPERS
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function timeAgo(d) {
+  if (!d) return '—';
+  const diff = (Date.now() - new Date(d.replace(' ','T')+'Z')) / 1000;
+  if (diff < 60) return 'только что';
+  if (diff < 3600) return Math.floor(diff/60) + ' мин назад';
+  if (diff < 86400) return Math.floor(diff/3600) + ' ч назад';
+  return Math.floor(diff/86400) + ' дн назад';
+}
+let toastT;
+function toast(msg, type='ok') {
+  const t = document.getElementById('toast');
+  t.textContent = (type==='ok'?'✓ ':'⚠ ') + msg;
+  t.className = `toast show ${type}`;
+  clearTimeout(toastT);
+  toastT = setTimeout(() => t.classList.remove('show'), 3500);
+}
+function openM(id) { document.getElementById(id).classList.add('open'); }
+function closeM(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.overlay').forEach(m => m.addEventListener('click', e => { if(e.target===m) m.classList.remove('open'); }));
+
+// Обновляем статы каждые 60 секунд
+setInterval(() => { if (adminToken) loadStats(); }, 60000);
+</script>
+</body>
+</html>
