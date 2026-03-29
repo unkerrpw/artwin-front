@@ -676,19 +676,36 @@ select.fi{cursor:pointer;}
 </div>
 
 <div class="overlay" id="topupM">
-  <div class="modal" style="max-width:380px">
-    <div class="mhdr"><h3>Пополнить кошелёк</h3><button class="mclose" onclick="closeM('topupM')">✕</button></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px">
-      <div class="topup-opt" data-v="5000">₽5,000</div>
-      <div class="topup-opt active-opt" data-v="10000">₽10,000</div>
-      <div class="topup-opt" data-v="25000">₽25,000</div>
+  <div class="modal" style="max-width:440px">
+    <div class="mhdr"><h3>💰 Пополнить баланс</h3><button class="mclose" onclick="closeM('topupM');clearInterval(invoiceCheckInterval)">✕</button></div>
+    <div class="fg">
+      <label class="fl">Выбери монету</label>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:4px">
+        <div class="crypto-opt active-crypto" onclick="selectCoin(this,'USDT')"><div style="font-size:22px">💵</div><div style="font-weight:600;font-size:12px">USDT</div></div>
+        <div class="crypto-opt" onclick="selectCoin(this,'TON')"><div style="font-size:22px">💎</div><div style="font-weight:600;font-size:12px">TON</div></div>
+        <div class="crypto-opt" onclick="selectCoin(this,'LTC')"><div style="font-size:22px">🪙</div><div style="font-weight:600;font-size:12px">LTC</div></div>
+        <div class="crypto-opt" onclick="selectCoin(this,'BNB')"><div style="font-size:22px">🟡</div><div style="font-weight:600;font-size:12px">BNB</div></div>
+        <div class="crypto-opt" onclick="selectCoin(this,'BTC')"><div style="font-size:22px">₿</div><div style="font-weight:600;font-size:12px">BTC</div></div>
+        <div class="crypto-opt" onclick="selectCoin(this,'TRX')"><div style="font-size:22px">🔴</div><div style="font-weight:600;font-size:12px">TRX</div></div>
+      </div>
     </div>
-    <style>.topup-opt{padding:11px;border:1px solid var(--border);border-radius:9px;text-align:center;cursor:pointer;font-size:13px;font-weight:500;transition:.15s;}.topup-opt:hover,.active-opt{border-color:var(--accent);color:var(--accent);background:rgba(124,92,252,.08);}</style>
-    <div class="fg" style="margin-top:8px"><label class="fl">Или введите сумму (₽)</label><input class="fi" type="number" id="tp-amt" placeholder="Любая сумма"></div>
-    <div class="fg"><label class="fl">Метод оплаты</label>
-      <select class="fi"><option>Банковская карта</option><option>СБП</option><option>USDT TRC20</option></select>
+    <div class="fg">
+      <label class="fl">Сумма в USD</label>
+      <input class="fi" type="number" id="tp-amount" placeholder="Минимум $1" min="1">
     </div>
-    <button class="btn btn-primary" style="width:100%;padding:11px" onclick="closeM('topupM');toast('Функция пополнения в разработке. Свяжитесь с поддержкой.')">Перейти к оплате</button>
+    <button class="btn btn-primary" id="createInvoiceBtn" style="width:100%;padding:11px;margin-bottom:16px" onclick="createInvoice()">Создать инвойс →</button>
+    <div id="invoiceBlock" style="display:none;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Сумма к оплате:</div>
+      <div id="invoiceAmount" style="font-weight:700;font-size:16px;margin-bottom:14px;color:var(--accent3)"></div>
+      <a id="invoiceLink" href="#" target="_blank" class="btn btn-primary" style="display:block;text-align:center;padding:12px;text-decoration:none;margin-bottom:12px">Оплатить в CryptoBot →</a>
+      <div style="font-size:12px;color:var(--muted);display:flex;align-items:center;gap:8px">
+        <div class="spin" style="width:16px;height:16px;border-width:2px"></div>
+        Ожидаю оплату... Можешь закрыть — баланс обновится автоматически.
+      </div>
+    </div>
+    <div style="margin-top:14px;font-size:12px;color:var(--muted);line-height:1.6">
+      Платёж через <b style="color:var(--text)">@CryptoBot</b> в Telegram. Зачисление автоматически.
+    </div>
   </div>
 </div>
 
