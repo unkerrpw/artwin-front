@@ -1260,6 +1260,10 @@ async function loadProfile() {
               <h4 style="font-size:14px;font-weight:600;margin-bottom:12px">Ставка</h4>
               <div style="font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:var(--accent3)">${u.hourly_rate ? '₽'+u.hourly_rate.toLocaleString('ru')+'<span style="font-size:14px;color:var(--muted)">/час</span>' : 'По договорённости'}</div>
             </div>
+            <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
+              <button class="btn btn-ghost btn-sm" style="width:100%;justify-content:center" onclick="sp('settings')">⚙️ Настройки</button>
+              <button class="btn btn-danger btn-sm" style="width:100%;justify-content:center" onclick="logout()">🚪 Выйти из аккаунта</button>
+            </div>
           </div>
         </div>
       </div>
@@ -1566,14 +1570,111 @@ function setBtnLoading(id, loading) {
   else btn.textContent = btn._orig || btn.textContent;
 }
 
-// Topup options
-document.querySelectorAll('.topup-opt').forEach(el => {
-  el.addEventListener('click', function() {
-    document.querySelectorAll('.topup-opt').forEach(o => o.classList.remove('active-opt'));
-    this.classList.add('active-opt');
-    document.getElementById('tp-amt').value = this.dataset.v;
-  });
+// ===== CRYPTO WALLET =====
+// Адреса для пополнения — замени на свои реальные адреса!
+const DEPOSIT_ADDRESSES = {
+  'USDT': {
+    'TRC20': 'ЗАМЕНИ_НА_СВОЙ_USDT_TRC20_АДРЕС',
+    'ERC20': 'ЗАМЕНИ_НА_СВОЙ_USDT_ERC20_АДРЕС',
+    'BEP20': 'ЗАМЕНИ_НА_СВОЙ_USDT_BEP20_АДРЕС',
+  },
+  'TON':  { 'TON': 'ЗАМЕНИ_НА_СВОЙ_TON_АДРЕС' },
+  'BTC':  { 'BTC': 'ЗАМЕНИ_НА_СВОЙ_BTC_АДРЕС' },
+  'ETH':  { 'ERC20': 'ЗАМЕНИ_НА_СВОЙ_ETH_АДРЕС' },
+  'BNB':  { 'BEP20': 'ЗАМЕНИ_НА_СВОЙ_BNB_АДРЕС' },
+  'SOL':  { 'SOL': 'ЗАМЕНИ_НА_СВОЙ_SOL_АДРЕС' },
+  'TRX':  { 'TRC20': 'ЗАМЕНИ_НА_СВОЙ_TRX_АДРЕС' },
+  'NOT':  { 'TON': 'ЗАМЕНИ_НА_СВОЙ_TON_АДРЕС' },
+  'USDC': { 'ERC20': 'ЗАМЕНИ_НА_СВОЙ_USDC_АДРЕС', 'BEP20': 'ЗАМЕНИ_НА_СВОЙ_USDC_BEP20_АДРЕС' },
+};
+
+const COIN_NETWORKS = {
+  'USDT': ['TRC20','ERC20','BEP20'],
+  'TON':  ['TON'],
+  'BTC':  ['BTC'],
+  'ETH':  ['ERC20'],
+  'BNB':  ['BEP20'],
+  'SOL':  ['SOL'],
+  'TRX':  ['TRC20'],
+  'NOT':  ['TON'],
+  'USDC': ['ERC20','BEP20'],
+};
+
+const NETWORK_LABELS = {
+  'TRC20': 'TRC20 (TRON)',
+  'ERC20': 'ERC20 (Ethereum)',
+  'BEP20': 'BEP20 (BSC)',
+  'TON':   'TON Network',
+  'BTC':   'Bitcoin',
+  'SOL':   'Solana',
+};
+
+let selectedCoin = 'USDT';
+
+function selectCoin(el, coin) {
+  selectedCoin = coin;
+  document.querySelectorAll('.crypto-opt').forEach(o => o.classList.remove('active-crypto'));
+  el.classList.add('active-crypto');
+  
+  // Обновляем доступные сети
+  const networks = COIN_NETWORKS[coin] || ['TRC20'];
+  const netSel = document.getElementById('tp-network');
+  netSel.innerHTML = networks.map(n => `<option value="${n}">${NETWORK_LABELS[n]||n}</option>`).join('');
+  
+  // Скрываем выбор сети если одна
+  document.getElementById('networkRow').style.display = networks.length > 1 ? 'block' : 'none';
+  
+  updateDepositAddress();
+}
+
+function updateDepositAddress() {
+  const network = document.getElementById('tp-network').value;
+  const addrs = DEPOSIT_ADDRESSES[selectedCoin] || {};
+  const addr = addrs[network] || addrs[Object.keys(addrs)[0]] || '—';
+  document.getElementById('depositAddr').textContent = addr;
+  document.getElementById('coinNetLabel').textContent = selectedCoin + ' ' + (NETWORK_LABELS[network]||network);
+}
+
+function copyAddr() {
+  const addr = document.getElementById('depositAddr').textContent;
+  if (addr === '—' || addr.includes('ЗАМЕНИ')) { toast('Сначала настрой адреса кошельков', 'er'); return; }
+  navigator.clipboard.writeText(addr).then(() => toast('Адрес скопирован!')).catch(() => toast('Не удалось скопировать', 'er'));
+}
+
+function updateWithdrawNetwork() {
+  const coin = document.getElementById('wd-coin').value;
+  const networks = COIN_NETWORKS[coin] || ['TRC20'];
+  const netSel = document.getElementById('wd-network');
+  netSel.innerHTML = networks.map(n => `<option value="${n}">${NETWORK_LABELS[n]||n}</option>`).join('');
+}
+
+async function doWithdraw() {
+  const coin = document.getElementById('wd-coin').value;
+  const network = document.getElementById('wd-network').value;
+  const address = document.getElementById('wd-address').value.trim();
+  const amount = parseFloat(document.getElementById('wd-amt').value);
+  
+  if (!address) { toast('Введи адрес кошелька', 'er'); return; }
+  if (!amount || amount < 10) { toast('Минимальная сумма $10', 'er'); return; }
+  if (!confirm(`Вывести $${amount} ${coin} (${network}) на адрес:\n${address}\n\nПроверь адрес — операция необратима!`)) return;
+  
+  setBtnLoading('wdBtn', true);
+  try {
+    await WalletAPI.withdraw(amount, `${coin} ${network}: ${address}`);
+    closeM('withdrawM');
+    toast(`Заявка на вывод ${coin} отправлена! Обработка до 24 часов.`);
+    loadWallet();
+  } catch(e) { toast(e.message, 'er'); }
+  setBtnLoading('wdBtn', false);
+}
+
+// Инит крипто при открытии модала
+document.getElementById('topupM').addEventListener('click', function(e) {
+  if (e.target === this) return;
 });
+
+// Обновить адрес при открытии
+const origOpenM = openM;
 </script>
 </body>
 </html>
